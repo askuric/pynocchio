@@ -185,6 +185,22 @@ class RobotWrapper:
         pin.crba(self.robot,self.data,np.array(q))
         return np.array(self.data.M)
 
+
+    def coriolis_matrix(self, q, qd):
+        """
+        Coriolis matrix calcualation function
+
+        Args:
+            q: currrent robot configuration  
+            qd: currrent robot velocity in configuration space
+
+        Returns
+        --------
+            C: nxn Coriolis matrix 
+        """
+        pin.computeCoriolisMatrix(self.robot,self.data,np.array(q),np.array(qd))
+        return np.array(self.data.C)
+    
     def ik(self, oMdes, q=None, verbose=True):
         """
         Iterative inverse kinematics based on the example code from

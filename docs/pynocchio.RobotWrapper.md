@@ -41,6 +41,29 @@ RobotWrapper constructor
 
 ---
 
+<a href="../pynocchio/RobotWrapper.py#L189"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `coriolis_matrix`
+
+```python
+coriolis_matrix(q, qd)
+```
+
+Coriolis matrix calcualation function 
+
+
+
+**Args:**
+ 
+ - <b>`q`</b>:  currrent robot configuration   
+ - <b>`qd`</b>:  currrent robot velocity in configuration space 
+
+Returns 
+-------- 
+ - <b>`C`</b>:  nxn Coriolis matrix  
+
+---
+
 <a href="../pynocchio/RobotWrapper.py#L75"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `dk_orientation_matrix`
@@ -134,7 +157,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L188"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L204"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `ik`
 

@@ -26,16 +26,22 @@
 __init__(tip, robot_path=None, robot_xml=None)
 ```
 
+RobotWrapper constructor 
 
 
 
+**Args:**
+ 
+ - <b>`tip`</b>:  robot end-effector frame name 
+ - <b>`robot_path`</b>:  a part to the robot's urdf file (optional)  
+ - <b>`robot_xml`</b>:  a string containing robot's urdf/xml (optional) 
 
 
 
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L68"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L75"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `dk_orientation_matrix`
 
@@ -58,7 +64,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L54"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L61"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `dk_position`
 
@@ -81,7 +87,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L35"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L42"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `forward`
 
@@ -106,7 +112,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L132"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L139"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `gravity_torque`
 
@@ -128,7 +134,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L160"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L167"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `ik`
 
@@ -151,7 +157,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L82"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L89"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `jacobian`
 
@@ -179,7 +185,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L102"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L109"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `jacobian_position`
 
@@ -207,7 +213,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L117"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L124"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `jacobian_pseudo_inv`
 
@@ -235,7 +241,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L146"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L153"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `mass_matrix`
 

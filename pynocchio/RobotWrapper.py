@@ -6,7 +6,14 @@ import pinocchio as pin
 class RobotWrapper:
     # constructor - reading urdf and constructing the robots kinematic chain
     def __init__(self, tip, robot_path=None, robot_xml=None):
+        """
+        RobotWrapper constructor
 
+        Args:
+            tip: robot end-effector frame name
+            robot_path: a part to the robot's urdf file (optional) 
+            robot_xml: a string containing robot's urdf/xml (optional)
+        """
         if robot_path:
             self.robot = pin.buildModelFromUrdf(robot_path)
         elif robot_xml:

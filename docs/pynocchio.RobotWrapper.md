@@ -112,7 +112,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L139"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L160"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `gravity_torque`
 
@@ -134,7 +134,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L167"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L188"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `ik`
 
@@ -188,6 +188,36 @@ Returns
 
 <a href="../pynocchio/RobotWrapper.py#L109"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
+### <kbd>method</kbd> `jacobian_dot`
+
+```python
+jacobian_dot(
+    q,
+    qd,
+    frame_name=None,
+    frame_align=pinocchio.pinocchio_pywrap.ReferenceFrame.LOCAL_WORLD_ALIGNED
+)
+```
+
+Jacobian time derivative matrix calculating function 
+
+
+
+**Args:**
+ 
+ - <b>`q`</b>:  currrent robot configuration 
+ - <b>`qd`</b>:  currrent robot velocity in configuration space 
+ - <b>`frame_name`</b>:  name of the robot frame for which to calculate the jacobian (optional - default tip frame) 
+ - <b>`frame_align`</b>:  determining which frame to express the jacoiban in. Can be either: LOCAL_WORLD_ALIGNED (default), WORLD or LOCAL            
+
+Returns 
+-------- 
+ - <b>`Jdot`</b>:  6xn jacobian time derivative matrix for the desired robot frame  
+
+---
+
+<a href="../pynocchio/RobotWrapper.py#L130"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
 ### <kbd>method</kbd> `jacobian_position`
 
 ```python
@@ -214,7 +244,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L124"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L145"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `jacobian_pseudo_inv`
 
@@ -242,7 +272,7 @@ Returns
 
 ---
 
-<a href="../pynocchio/RobotWrapper.py#L153"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="../pynocchio/RobotWrapper.py#L174"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `mass_matrix`
 

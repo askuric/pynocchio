@@ -16,4 +16,3 @@ J0 = panda.jacobian(q0,"panda_link5",pin.WORLD)
 print("jacobian of panda_link5 in WORLD frame\n", J0)
 J0 = panda.jacobian(q0,"panda_link5",pin.LOCAL)
 print("jacobian of panda_link5 in LOCAL frame\n", J0)
-

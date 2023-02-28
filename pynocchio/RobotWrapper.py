@@ -105,6 +105,27 @@ class RobotWrapper:
         pin.computeJointJacobians(self.robot,self.data, np.array(q))
         Jac = pin.getFrameJacobian(self.robot, self.data, frame_id, frame_align)
         return np.matrix(Jac)
+    
+    def jacobian_dot(self, q, qd, frame_name=None, frame_align=pin.LOCAL_WORLD_ALIGNED):
+        """
+        Jacobian time derivative matrix calculating function
+
+        Args:
+            q: currrent robot configuration
+            qd: currrent robot velocity in configuration space
+            frame_name: name of the robot frame for which to calculate the jacobian (optional - default tip frame)
+            frame_align: determining which frame to express the jacoiban in. Can be either: LOCAL_WORLD_ALIGNED (default), WORLD or LOCAL           
+
+        Returns
+        --------
+            Jdot: 6xn jacobian time derivative matrix for the desired robot frame 
+        """
+        frame_id = self.tip_id
+        if frame_name is not None:
+            frame_id = self.robot.getFrameId(frame_name)
+        pin.computeJointJacobiansTimeVariation(self.robot, self.data,np.array(q), np.array(qd))
+        Jdot = pin.getFrameJacobianTimeVariation(self.robot, self.data, frame_id, frame_align)
+        return np.matrix(Jdot)
 
     def jacobian_position(self, q,frame_name=None, frame_align=pin.LOCAL_WORLD_ALIGNED):
         """

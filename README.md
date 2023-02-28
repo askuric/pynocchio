@@ -11,3 +11,19 @@ A simple python pip package implementing a wrapper for pinocchio library's robot
 
 see the [docs](docs/pynocchio.RobotWrapper.md)
 
+## Install the package
+
+```bash
+pip install git+https://gitlab.inria.fr/auctus-team/people/antunskuric/pynocchio.git
+```
+
+
+## Examples
+
+```python
+from pynocchio import RobotWapper.RobotWapper 
+
+panda = RobotWrapper("path/to/urdf")
+
+panda.forward(panda.robot.natural())
+```

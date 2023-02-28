@@ -8,5 +8,5 @@ setup(name='pynocchio',
     author_email='antun.skuric@inria.fr',
     license='MIT',
     packages=['pynocchio'],
-    install_requires=['pinocchio','numpy'],
+    install_requires=['numpy'],
     zip_safe=False)

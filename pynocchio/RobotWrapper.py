@@ -179,7 +179,7 @@ class RobotWrapper:
         """
         data_ik  = self.robot.createData()
 
-        if q in None:
+        if q is None:
             q = pin.neutral(self.robot)
         
         # ik parameters

@@ -35,3 +35,5 @@ print("ik found q\n", q_ik)
 oMq_ik = panda.forward(q_ik)
 print("direct kinamtics for ik found q\n", oMq_ik)
 ```
+
+see the [examples](examples) folder for more examples.

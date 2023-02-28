@@ -104,7 +104,7 @@ class RobotWrapper:
             frame_id = self.robot.getFrameId(frame_name)
         pin.computeJointJacobians(self.robot,self.data, np.array(q))
         Jac = pin.getFrameJacobian(self.robot, self.data, frame_id, frame_align)
-        return np.matrix(Jac)
+        return np.array(Jac)
     
     def jacobian_dot(self, q, qd, frame_name=None, frame_align=pin.LOCAL_WORLD_ALIGNED):
         """
@@ -125,7 +125,7 @@ class RobotWrapper:
             frame_id = self.robot.getFrameId(frame_name)
         pin.computeJointJacobiansTimeVariation(self.robot, self.data,np.array(q), np.array(qd))
         Jdot = pin.getFrameJacobianTimeVariation(self.robot, self.data, frame_id, frame_align)
-        return np.matrix(Jdot)
+        return np.array(Jdot)
 
     def jacobian_position(self, q,frame_name=None, frame_align=pin.LOCAL_WORLD_ALIGNED):
         """
@@ -183,7 +183,7 @@ class RobotWrapper:
             M: nxn mass matrix 
         """
         pin.crba(self.robot,self.data,np.array(q))
-        return np.matrix(self.data.M)
+        return np.array(self.data.M)
 
     def ik(self, oMdes, q=None, verbose=True):
         """

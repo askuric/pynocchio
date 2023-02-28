@@ -139,7 +139,7 @@ Returns
 ### <kbd>method</kbd> `ik`
 
 ```python
-ik(oMdes, q=None)
+ik(oMdes, q=None, verbose=True)
 ```
 
 Iterative inverse kinematics based on the example code from https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html 
@@ -148,8 +148,9 @@ Iterative inverse kinematics based on the example code from https://gepettoweb.l
 
 **Args:**
  
- - <b>`q`</b>:  currrent robot configuration (default robot's neutral position) 
  - <b>`oMdes`</b>:   SE3 matrix expressed in the world frame of the robot's endefector desired pose     
+ - <b>`q`</b>:  currrent robot configuration (default robot's neutral position) 
+ - <b>`verbose`</b>:  bool variable enabling verbose ouptut (default True) 
 
 Returns 
 -------- 

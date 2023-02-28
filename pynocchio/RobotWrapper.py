@@ -164,14 +164,15 @@ class RobotWrapper:
         pin.crba(self.robot,self.data,np.array(q))
         return np.matrix(self.data.M)
 
-    def ik(self, oMdes, q=None):
+    def ik(self, oMdes, q=None, verbose=True):
         """
         Iterative inverse kinematics based on the example code from
         https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html
 
         Args:
-            q: currrent robot configuration (default robot's neutral position)
             oMdes:  SE3 matrix expressed in the world frame of the robot's endefector desired pose    
+            q: currrent robot configuration (default robot's neutral position)
+            verbose: bool variable enabling verbose ouptut (default True)
 
         Returns
         --------
@@ -190,8 +191,8 @@ class RobotWrapper:
 
         i=0
         while True:
-            pin.forwardKinematics(self.robot,data_ik,q)
-            dMi = oMdes.actInv(data_ik.oMi[self.tip_id])
+            pin.framesForwardKinematics(self.robot,data_ik,q)
+            dMi = oMdes.actInv(data_ik.oMf[self.tip_id])
             err = pin.log(dMi).vector
             if np.linalg.norm(err) < eps:
                 success = True
@@ -199,16 +200,17 @@ class RobotWrapper:
             if i >= IT_MAX:
                 success = False
                 break
-            J = pin.computeJointJacobian(self.robot,data_ik,q,self.tip_id)
+            J = pin.computeFrameJacobian(self.robot,data_ik,q,self.tip_id)
             v = - J.T.dot(np.linalg.solve(J.dot(J.T) + damp * np.eye(6), err))
             q = pin.integrate(self.robot,q,v*DT)
-            if not i % 10:
+            if not i % 10 and verbose:
                 print('%d: error = %s' % (i, err.T))
             i += 1
 
-        if success:
-            print("Convergence achieved!")
-        else:
-            print("\nWarning: the iterative algorithm has not reached convergence to the desired precision")
+        if verbose:
+            if success:
+                print("Convergence achieved!")
+            else :
+                print("\nWarning: the iterative algorithm has not reached convergence to the desired precision")
         
         return q

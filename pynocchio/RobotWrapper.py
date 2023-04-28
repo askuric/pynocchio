@@ -44,9 +44,9 @@ class RobotWrapper:
 
         if mesh_path:
             if urdf_path:
-                self.robot, self.collision_model, self.visual_model = pin.buildModelFromUrdf(urdf_path, mesh_path)
+                self.robot, self.collision_model, self.visual_model = pin.buildModelsFromUrdf(urdf_path, mesh_path)
             elif xml_path:
-                self.robot, self.collision_model, self.visual_model = pin.buildModelFromXML(xml_path, mesh_path)
+                self.robot, self.collision_model, self.visual_model = pin.buildModelsFromXML(xml_path, mesh_path)
             else: 
                 print("ERROR: no urdf or xml specified for the robot!")
                 return
@@ -82,9 +82,11 @@ class RobotWrapper:
         self.tau = np.zeros((self.robot.nq)) # joint torque
 
         if mesh_path:
-            self.viz = MeshcatVisualizer(self.model, self.collision_model, self.visual_model)
+            self.viz = MeshcatVisualizer(self.robot, self.collision_model, self.visual_model)
             self.viz.initViewer(open=True)
             self.viz.loadViewerModel("pinocchio")
+            if q:
+                self.update_visualisation()
 
     def forward(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None) -> pin.SE3:
         """
@@ -378,7 +380,7 @@ class RobotWrapper:
         ddq = np.linalg.inv(A).dot(tau - tau_ext - C.dot(dq) - g)
         return np.array(ddq)
 
-    def direct_dynamic_aba(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, tau_ext:np.ndarray[float](np.ndarray[float] or None)=None) -> np.ndarray[float]:
+    def direct_dynamic_aba(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, tau_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
         """
         Direct dynamic model using ABA's method (R. Featherstone 1983), with the implementation described in Analytical Derivatives
         of Rigid Body Dynamics Algorithms, by Justin Carpentier and Nicolas Mansard (http://www.roboticsproceedings.org/rss14/p38.pdf)

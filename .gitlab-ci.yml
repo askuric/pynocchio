@@ -10,7 +10,7 @@ pages:
   - cd docs
   - pip install -r requirements.txt
   - python3 -m sphinx.cmd.build -M html "source" "build" 
-  - cp my_theme.css build/html/_static/css
+  - cp source/my_theme.css build/html/_static/css
   - mkdir public/
   - cp -r build/html/ ../public
   artifacts:

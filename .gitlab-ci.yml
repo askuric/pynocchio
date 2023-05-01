@@ -1,0 +1,24 @@
+image: python:3.6-slim
+
+pages:
+  stage: deploy
+  tags:
+  - ci.inria.fr
+  script:
+  - pip install pin
+  - pip install .
+  # - cd docs
+  # - pip install -r requirements.txt
+  # - python3 -m sphinx.cmd.build -M html "source" "build" 
+  # - cp source/my_theme.css build/html/_static/css
+  # - cp -r build/html/ ../public
+  - pip install pytest
+  - pip install coverage
+  - coverage run -m pytest tests/test.py
+  - coverage html
+  - cp -r htmlcov/ ../public
+  artifacts:
+    paths:
+    - public
+  only:
+  - master

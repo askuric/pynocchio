@@ -33,7 +33,7 @@ tests:
   - coverage html
   - mkdir public/
   - mkdir public/coverage
-  - cp -r htmlcov/ /public/coverage
+  - cp -r htmlcov/ public/coverage
   artifacts:
     paths:
     - public

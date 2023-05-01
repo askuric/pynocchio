@@ -11,7 +11,7 @@ A simple python pip package implementing a wrapper for pinocchio library's robot
 - mass matrix calculaiton `mass_matrix`
 - coriolis matrix calculaiton `coriolis_matrix`
 
-see the [docs](docs/pynocchio.RobotWrapper.md)
+see the [docs](https://auctus-team.gitlabpages.inria.fr/people/antunskuric/pynocchio)
 
 ## Install the package
 

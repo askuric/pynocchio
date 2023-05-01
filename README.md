@@ -38,9 +38,9 @@ and for html version
 coverage html
 ```
 
-## Example of using the code
+## Example of using the code
 
-### Example 1: Creating a `RobotWrapper` object and calculating the forward kinematics for the end effector.
+### Example 1: Creating a `RobotWrapper` object and calculating the forward kinematics for the end effector.
 
 ```python
 import numpy as np
@@ -62,7 +62,7 @@ oMf = robot.forward(q)
 print(oMf)
 ```
 
-### Example 2: Creating a `RobotWrapper`  object and calculating the Jacobian matrix for the end effector.
+### Example 2: Creating a `RobotWrapper`  object and calculating the Jacobian matrix for the end effector.
 
 ```python
 import numpy as np

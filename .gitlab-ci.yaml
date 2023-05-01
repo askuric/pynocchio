@@ -6,7 +6,7 @@ pages:
   - ci.inria.fr
   script:
   - pip install pin
-  - pip install .
+  - pip install . 
   # - cd docs
   # - pip install -r requirements.txt
   # - python3 -m sphinx.cmd.build -M html "source" "build" 

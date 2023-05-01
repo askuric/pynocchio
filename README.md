@@ -37,22 +37,55 @@ and for html version
 ```shell
 coverage html
 ```
-## Examples 
 
-A simple example of using the wrapper
+## Example of using the code
+
+### Example 1: Creating a `RobotWrapper` object and calculating the forward kinematics for the end effector.
+
 ```python
-from pynocchio import RobotWrapper
 import numpy as np
-panda = RobotWrapper("panda_link8", "panda.urdf")
+from pyocchio import RobotWrapper
 
-q0 = np.random.uniform(panda.q_min,panda.q_max)
-print("initial q\n", q0)
-oMq0 = panda.forward(q0)
-print("direct kinamtics for q\n", oMq0)
-q_ik = panda.ik(oMq0, verbose=False)
-print("ik found q\n", q_ik)
-oMq_ik = panda.forward(q_ik)
-print("direct kinamtics for ik found q\n", oMq_ik)
+# Define the path to the URDF file
+robot_path = '/path/to/robot.urdf'
+
+# Create the RobotWrapper object
+robot = RobotWrapper(robot_path=robot_path)
+
+# Define the current robot configuration
+q = np.zeros(robot.n)
+
+# Calculate the forward kinematics for the end effector
+oMf = robot.forward(q)
+
+# Print the resulting transformation matrix
+print(oMf)
 ```
 
-see the [examples](examples) folder for more examples.
+### Example 2: Creating a `RobotWrapper`  object and calculating the Jacobian matrix for the end effector.
+
+```python
+import numpy as np
+from pyocchio import RobotWrapper
+
+# Define the path to the URDF file
+robot_path = '/path/to/robot.urdf'
+
+# Create the RobotWrapper object
+robot = RobotWrapper(robot_path=robot_path)
+
+# Define the current robot configuration
+q = np.zeros(robot.n)
+
+# Calculate the Jacobian matrix for the end effector
+J = robot.jacobian(q)
+
+# Print the resulting Jacobian matrix
+print(J)
+```
+
+In both examples, the `RobotWrapper` class is imported from the `pyocchio` module. The first example calculates the forward kinematics for the end effector of the robot given a certain configuration. The second example calculates the Jacobian matrix for the end effector of the robot given a certain configuration. In both cases, the `RobotWrapper` object is constructed with the path to the URDF file, and then the required function is called with the current robot configuration.
+
+
+
+see the [tutorials](https://auctus-team.gitlabpages.inria.fr/people/antunskuric/pynocchio/examples/) for more examples.

@@ -44,4 +44,4 @@ and for html version
 coverage html
 ```
 
-Automatically generated report is [here](coverage/index.html)
+Automatically generated coverage report is [here](coverage/htmlcov)

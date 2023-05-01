@@ -1,19 +1,32 @@
-Example of forward kinematics calculation
+Forward and inverse kinematics calculation
 =====================================================
 
-A simple example program for find a vertex representation of a set of half-plane :math:`Àx\leq b`
+This code loads a robot model from a URDF file and computes the forward kinematics of the end effector for a zero joint configuration, and then prints the resulting transformation matrix.
+
 
 .. code-block:: python
-    
-    from pynocchio import RobotWrapper
-    import numpy as np
-    panda = RobotWrapper("panda_link8", "panda.urdf")
 
-    q0 = np.random.uniform(panda.q_min,panda.q_max)
-    print("initial q\n", q0)
-    oMq0 = panda.forward(q0)
-    print("direct kinamtics for q\n", oMq0)
-    q_ik = panda.ik(oMq0, verbose=False)
-    print("ik found q\n", q_ik)
-    oMq_ik = panda.forward(q_ik)
-    print("direct kinamtics for ik found q\n", oMq_ik)
+
+    import numpy as np
+    from pyocchio import RobotWrapper
+
+    # Define the path to the URDF file
+    robot_path = '/path/to/robot.urdf'
+
+    # Create the RobotWrapper object
+    robot = RobotWrapper(robot_path=robot_path)
+
+    # Define the current robot configuration
+    q = np.zeros(robot.n)
+
+    # Calculate the forward kinematics for the end effector
+    oMf = robot.forward(q)
+
+    # Print the resulting transformation matrix
+    print(oMf) 
+
+    # Calculate the inverse kinematics for the end effector
+    q_ik = robot.ik(oMf)
+
+    # Print the resulting joint configuration
+    print(q_ik) 

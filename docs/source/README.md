@@ -19,24 +19,6 @@ see the [docs](https://auctus-team.gitlabpages.inria.fr/people/antunskuric/pynoc
 pip install git+https://gitlab.inria.fr/auctus-team/people/antunskuric/pynocchio.git
 ```
 
-## Testing the code
-
-```shell
-pytest tests/test.py
-```
-
-and coverage report
-
-```shell
-coverage run -m pytest tests/test.py
-coverage report -m
-```
-
-and for html version
-
-```shell
-coverage html
-```
 ## Examples 
 
 A simple example of using the wrapper

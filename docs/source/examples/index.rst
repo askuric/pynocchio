@@ -5,4 +5,6 @@ Examples
 .. toctree::
    :maxdepth: 1
 
-    Example of forward kinematics calculation <forward_kin>
+    Forward kinematics calculation <forward_kin>
+    Jacobian calculation <jacobian>
+    Dynamics calculation <dynamics>

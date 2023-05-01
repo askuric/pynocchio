@@ -16,7 +16,7 @@ pages:
   - pip install coverage
   - coverage run -m pytest tests/test.py
   - coverage html
-  - cp -r htmlcov/ ../public
+  - cp -r htmlcov/ public
   artifacts:
     paths:
     - public

@@ -10,5 +10,6 @@ Welcome to pynocchio's documentation!
    :maxdepth: 1
 
    ABOUT <README.md>
-   🚀 API Reference <modules.md>
-   Testing <convetage/index.html>
+   🚀 INSTALLATION <installation.rst>
+   📄 API REFERENCE <modules.rst>
+   🎓 TUTORIALS <examples/index.rst>

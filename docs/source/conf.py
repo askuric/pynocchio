@@ -10,6 +10,7 @@ project = 'pynocchio'
 copyright = '2023, auctus team'
 author = 'auctus team'
 release = '1.3'
+version = u'1.3'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -23,7 +24,6 @@ extensions = [
     'recommonmark',
     "sphinxcontrib.jquery",
 ]
-
 
 def setup(app):
     app.add_css_file('css/my_theme.css')

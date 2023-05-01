@@ -7,7 +7,7 @@ pages:
   script:
   - pip install pin
   - pip install . 
-  - cd source
+  - cd docs
   - pip install -r requirements.txt
   - python3 -m sphinx.cmd.build -M html "source" "build" 
   - cp my_theme.css build/html/_static/css

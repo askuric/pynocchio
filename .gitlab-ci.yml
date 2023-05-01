@@ -36,6 +36,7 @@ tests:
   - cp -r htmlcov/ public/coverage
   - ls public
   - ls public/coverage
+  - ls public/coverage/htmlcov
   artifacts:
     paths:
     - public

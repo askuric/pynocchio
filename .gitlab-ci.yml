@@ -34,6 +34,8 @@ tests:
   - mkdir public/
   - mkdir public/coverage
   - cp -r htmlcov/ public/coverage
+  - ls public
+  - ls public/coverage
   artifacts:
     paths:
     - public

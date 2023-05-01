@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='pynocchio',
-    version='1.2',
+    version='1.3',
     description='A pip package implementing a simple wrapper of the pinocchio robot model.',
     url='https://gitlab.inria.fr/auctus-team/people/antunskuric/pynocchio',
     author='Antun Skuric',

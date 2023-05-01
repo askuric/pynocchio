@@ -5,7 +5,7 @@ import pinocchio as pin
 
 class RobotWrapper:
     # constructor - reading urdf and constructing the robots kinematic chain
-    def __init__(self, tip, robot_path=None, robot_xml=None):
+    def __init__(self, tip=None, robot_path=None, robot_xml=None):
         """
         RobotWrapper constructor
 
@@ -19,8 +19,11 @@ class RobotWrapper:
         elif robot_xml:
             self.robot = pin.buildModelFromXML(robot_xml)
         else: 
-            print("ERROR: no path or robot xml specified!")
-            return
+            raise ValueError("ERROR: no path or robot xml specified!")
+
+        if tip is None:
+            tip = self.robot.frames[-1].name
+            print('No tip specified, using the last frame: ', tip)
 
         self.tip_link = tip
         # self.base_id = self.robot.getFrameId(base)
@@ -35,6 +38,8 @@ class RobotWrapper:
         # maximal joint angles
         self.q_max = self.robot.upperPositionLimit.T
         self.q_min = self.robot.lowerPositionLimit.T
+
+        self.n = len(self.t_max)
 
         self.data = self.robot.createData()
 

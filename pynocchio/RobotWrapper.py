@@ -75,7 +75,7 @@ class RobotWrapper:
         self.data = self.robot.createData()
 
         # robot state
-        if q:
+        if q is not None:
             self.q = q # joint position
         self.dq = np.zeros((self.robot.nq)) # joint velocity
         self.ddq = np.zeros((self.robot.nq)) # joint acceleration
@@ -85,7 +85,7 @@ class RobotWrapper:
             self.viz = MeshcatVisualizer(self.robot, self.collision_model, self.visual_model)
             self.viz.initViewer(open=True)
             self.viz.loadViewerModel("pinocchio")
-            if q:
+            if q is not None:
                 self.update_visualisation()
 
     def forward(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None) -> pin.SE3:
@@ -106,10 +106,10 @@ class RobotWrapper:
             frame_id = self.robot.getFrameId(frame_name)
         else:
             frame_id = self.tip_id
-        if q:
-            pin.framesForwardKinematics(self.robot,self.data, np.array(q))
-        else:
+        if q is None:
             pin.framesForwardKinematics(self.robot,self.data, self.q)
+        else:
+            pin.framesForwardKinematics(self.robot,self.data, np.array(q))
         return self.data.oMf[frame_id]
        
     def dk_position(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None) -> np.ndarray[float]: 
@@ -516,6 +516,8 @@ class RobotWrapper:
         Arg:
             q:        joint position array
         """
+        if q is None:
+            q = self.q
         self.viz.display(q)
 
     def add_visual_object(self, obj_file_path:str, name_id:str, material=None) -> None:

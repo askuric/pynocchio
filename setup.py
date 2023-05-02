@@ -8,5 +8,5 @@ setup(name='pynocchio',
     author_email='antun.skuric@inria.fr',
     license='MIT',
     packages=['pynocchio'],
-    install_requires=['numpy'],
+    install_requires=['numpy','meshcat'],
     zip_safe=False)

@@ -10,12 +10,20 @@ pip install git+https://gitlab.inria.fr/auctus-team/people/antunskuric/pynocchio
 ## Usage
 
 ```python
+import os
+import numpy as np
+
+import pynocchio as pynoc
+
 tip_name = "panda_link8"
-urdf_path="data/urdf/panda_urdf"
-mesh_path="data" # there should be a folder meshes with 2 subfolders visual and collision containing the mesh files
+pynoc_abs_path = os.path.dirname(os.path.abspath(pynoc.__file__))
+urdf_path = "models/urdf/panda.urdf"
+# there should be a folder meshes with 2 subfolders visual and collision containing the mesh files
+mesh_path = pynoc_abs_path + "/models" 
+
 q0 = np.array([np.pi/2,-0.2,0,-2.1,0,1.9,0])
 
-robot = RobotWrapper(tip_name, urdf_path, mesh_path=mesh_path, q=q0)
+robot = pynoc.RobotWrapper(tip_name, urdf_path, mesh_path=mesh_path, q=q0)
 
 fv = np.array([0.07, 0.20, 0.04, 0.23, 0.10, -0.01, 0.06])
 robot_fric = FrictionRobotWrapper(robot, fv)
@@ -45,6 +53,7 @@ Parameters:
 - **coriolis_matrix**(q=None, dq=None) -> np.ndarray[np.ndarray[float]]: *Calculates the Coriolis matrix.*
 - **ik**(oMdes: pin.SE3, q=None, verbose=True) -> np.ndarray[float]: *Performs iterative inverse kinematics to find the robot's configuration corresponding to a desired pose.*
 - **direct_dynamic**(tau: np.ndarray[float], q=None, dq=None, f_ext=None) -> np.ndarray[float]: *Calculates the joint accelerations using the direct dynamic model.*
+
 Note: The RobotWrapper class assumes the pinocchio (pin) and meshcat library are installed. The numpy library is also required.
 
 ### FrictionRobotWrapper
@@ -53,7 +62,7 @@ Note: The RobotWrapper class assumes the pinocchio (pin) and meshcat library are
 - **coulomb_friction_torque**(self, dq=None) -> np.ndarray[float]: *Calculates the Coulomb friction torque vector.*
 - **viscous_friction_offset_torque**(self) -> np.ndarray[float]: *Calculates the Coulomb friction torque vector offset.*
 
-
+Note: The FrictionRobotWrapper class assumes inherits properties and methods from RobotWrapper. `direct_dynamic` function is modified according to friction model.
 
 
 <!-- 

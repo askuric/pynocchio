@@ -1,6 +1,11 @@
-from pynocchio import RobotWrapper
 import numpy as np
-panda = RobotWrapper("panda_link8", "panda.urdf")
+import os
+
+import pynocchio as pynoc
+
+dir_path = os.path.dirname(os.path.abspath(pynoc.__file__))
+
+panda = pynoc.RobotWrapper("panda_link8", dir_path+"/models/urdf/panda.urdf")
 
 q0 = np.random.uniform(panda.q_min,panda.q_max)
 print("initial q\n", q0)

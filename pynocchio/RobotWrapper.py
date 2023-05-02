@@ -285,8 +285,8 @@ class RobotWrapper:
         Coriolis matrix calcualation function
 
         Args:
-            q: currrent robot configuration  (optional)
-            dq: currrent robot velocity in configuration space (optional)
+            q: current robot configuration  (optional)
+            dq: current robot velocity in configuration space (optional)
 
         Returns
         --------
@@ -360,6 +360,7 @@ class RobotWrapper:
             q:        joint position array (optional)
             dq:       joint velocity array (optional)
             f_ext:    external force array (in the global frame) f(rob->env) at the endpoint of the robot (default value is a null array)
+
         Returns
         --------
             ddq:      n array of the joint acceleration 
@@ -515,6 +516,7 @@ class RobotWrapper:
 
         Arg:
             q:        joint position array
+
         """
         if q is None:
             q = self.q
@@ -528,6 +530,7 @@ class RobotWrapper:
             obj_file_path:      file path of the 3D object (string)
             name_id:            reference identifier for the object (string)
             material:           meshcat.geometry material defining color, texture and opacity of the object
+
         """
         _, file_extension = os.path.splitext(obj_file_path)
         if file_extension.lower() == ".dae":

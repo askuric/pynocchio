@@ -8,7 +8,7 @@ This code loads a robot model from a URDF file and computes the forward kinemati
 
 
     import numpy as np
-    from pyocchio import RobotWrapper
+    from pynocchio import RobotWrapper
 
     # Define the path to the URDF file
     robot_path = '/path/to/robot.urdf'

@@ -44,7 +44,7 @@ coverage html
 
 ```python
 import numpy as np
-from pyocchio import RobotWrapper
+from pynocchio import RobotWrapper
 
 # Define the path to the URDF file
 robot_path = '/path/to/robot.urdf'
@@ -66,7 +66,7 @@ print(oMf)
 
 ```python
 import numpy as np
-from pyocchio import RobotWrapper
+from pynocchio import RobotWrapper
 
 # Define the path to the URDF file
 robot_path = '/path/to/robot.urdf'
@@ -84,7 +84,7 @@ J = robot.jacobian(q)
 print(J)
 ```
 
-In both examples, the `RobotWrapper` class is imported from the `pyocchio` module. The first example calculates the forward kinematics for the end effector of the robot given a certain configuration. The second example calculates the Jacobian matrix for the end effector of the robot given a certain configuration. In both cases, the `RobotWrapper` object is constructed with the path to the URDF file, and then the required function is called with the current robot configuration.
+In both examples, the `RobotWrapper` class is imported from the `pynocchio` module. The first example calculates the forward kinematics for the end effector of the robot given a certain configuration. The second example calculates the Jacobian matrix for the end effector of the robot given a certain configuration. In both cases, the `RobotWrapper` object is constructed with the path to the URDF file, and then the required function is called with the current robot configuration.
 
 
 

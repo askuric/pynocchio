@@ -6,7 +6,7 @@ This code uses the PyNocchio library to calculate and print the Jacobian matrix 
 .. code-block:: python
     
     import numpy as np
-    from pyocchio import RobotWrapper
+    from pynocchio import RobotWrapper
 
     # Define the path to the URDF file
     robot_path = '/path/to/robot.urdf'

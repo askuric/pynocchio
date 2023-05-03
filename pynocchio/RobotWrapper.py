@@ -74,7 +74,7 @@ class RobotWrapper:
         self.q_max = self.robot.upperPositionLimit.T
         self.q_min = self.robot.lowerPositionLimit.T
 
-        self.n = len(self.t_max)
+        self.n = self.robot.nq
 
         self.data = self.robot.createData()
 
@@ -268,7 +268,7 @@ class RobotWrapper:
         pin.computeGeneralizedGravity(self.robot,self.data, np.array(q))
         return np.array(self.data.g)
 
-    def mass_matrix(self, q:np.ndarray[float]) -> np.ndarray[np.ndarray[float]]:
+    def mass_matrix(self, q:(np.ndarray[float] or None)=None) -> np.ndarray[np.ndarray[float]]:
         """
         Mass matrix calcualation function
 
@@ -406,7 +406,8 @@ class RobotWrapper:
         if tau_ext is None:
             tau_ext = np.zeros(self.robot.nq)
 
-        ddq = pin.aba(model=self.model, data=self.data, q=q, v=dq, tau=tau, fext=tau_ext)
+        #ddq = pin.aba(model=self.robot, data=self.data, q=q, v=dq, tau=tau, fext=tau_ext)
+        ddq = pin.aba(self.robot, self.data, q, dq, tau, tau_ext)
         return np.array(ddq)
  
     def update_joint_data(self, q:(np.ndarray or None)=None, dq:(np.ndarray or None)=None, ddq:(np.ndarray or None)=None, tau:(np.ndarray or None)=None, apply_saturation=False):
@@ -437,7 +438,7 @@ class RobotWrapper:
             if ddq is not None:
                 self.ddq = np.array(ddq)
             if tau is not None:
-                self.t = tau   
+                self.tau = np.array(tau)
 
     def apply_joint_position_limits(self, q:(np.ndarray[float] or None)=None, update_joint_data:bool=False):
         """
@@ -499,7 +500,7 @@ class RobotWrapper:
             self.dddq = dddq
         return dddq
 
-    def apply_joint_effort_limits(self, q:(np.ndarray[float] or None)=None, update_joint_data:bool=False):
+    def apply_joint_effort_limits(self, tau:(np.ndarray[float] or None)=None, update_joint_data:bool=False):
         """
         Clip the joint torque tau, according to the limits specified in the robot model.
 
@@ -550,163 +551,3 @@ class RobotWrapper:
             material = meshcat.geometry.MeshPhongMaterial(color=0xff0000, opacity=0.4)
 
         self.viz.viewer[name_id].set_object(obj, material)
-
-
-class FrictionRobotWrapper(RobotWrapper):
-    """
-    Class wrapper to use pinocchio robot model with friction modelled.
-
-    Attributes:
-        fv (np.ndarray): An array containing the viscous friction gain.
-        fc (np.ndarray): An array containing the Coulomb friction gain.
-        f0 (np.ndarray): An array containing the Coulomb friction offset gain.
-    """
-    def __init__(self, robot_model, fv:(np.ndarray[float] or None)=None, fc:(np.ndarray[float] or None)=None, f0:(np.ndarray[float] or None)=None):
-
-        super().__init__(robot_model)
-
-        if fv:
-            self.set_viscous_friction_gains(fv)
-        else:
-            self.fv = np.zeros(self.robot.nq)
-
-        if fc:
-            self.set_coulomb_friction_gains(fc)
-        else:
-            self.fc = np.zeros(self.robot.nq)
-
-        if f0:
-            self.set_coulomb_friction_offset_gains(f0)
-        else:
-            self.f0 = np.zeros(self.robot.nq)
-    
-    def set_viscous_friction_gain(self, fv:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
-        """
-        Define the gains of the Coulomb friction torques, such as:
-        .. math:: \tau_{fi}(\dot{q}_i) = f_{v,i} \dot{q}_i
-        Args:
-            fv:       Viscous friction (np.array 1D of size equal to the nb of joints)
-        """
-        if not isinstance(fv, np.ndarray):
-            fv = np.array(fv)
-
-        if fv.ndim == 1 and fv.size == self.model.nq:
-            self.fv = fv
-        elif fv.ndim == 2 and (fv.shape[0] == 1 or fv.shape[1] == 1):
-            self.fv = fv.squeeze()
-        else:
-            raise ValueError(f"fc must be a 1D array of size {self.model.nq}, according to the number of joint of the robot.")
-
-        self.fv = fv
-
-    def set_coulomb_friction_gain(self, fc:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
-        """
-        Define the gains of the Coulomb friction torques, such as:
-        .. math:: \tau_{Ci}(\dot{q}_i) = f_{c,i} \sign(\dot{q}_i)
-        Args:
-            fc:       Coulomb friction (np.array 1D of size equal to the nb of joints)
-        """
-        if not isinstance(fc, np.ndarray):
-            fc = np.array(fc)
-
-        if fc.ndim == 1 and fc.size == self.model.nq:
-            self.fc = fc
-        elif fc.ndim == 2 and (fc.shape[0] == 1 or fc.shape[1] == 1):
-            self.fc = fc.squeeze()
-        else:
-            raise ValueError(f"fc must be a 1D array of size {self.model.nq}, according to the number of joint of the robot.")
-
-        self.fc = fc
-
-    def set_coulomb_friction_offset_gain(self, fo:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
-        """
-        Define the gains of the Coulomb friction offset torques, such as:
-        .. math:: \tau_{Ci}(\dot{q}_i) = f_{o,i}
-        Args:
-            fo:       Coulomb friction offset (np.array 1D of size equal to the nb of joints)
-        """       
-        if not isinstance(fo, np.ndarray):
-            fo = np.array(fo) 
-
-        if fo.ndim == 1 and fo.size == self.model.nq:
-            self.fo = fo
-        elif fo.ndim == 2 and (fo.shape[0] == 1 or fo.shape[1] == 1):
-            self.fo = fo.squeeze()
-        else:
-            raise ValueError(f"fo must be a 1D array of size {self.model.nq}, according to the number of joint of the robot.")
-        
-        self.fo = fo
-
-    def viscous_friction_torque(self, dq:(np.array or None)=None) -> np.ndarray[float]:
-        """
-        Compute the viscous friction torques, such as:
-        .. math:: \tau_{fi}(\dot{q}_i) = f_{v,i} \dot{q}_i
-        Args:
-            dq:       joint velocity array (optional)
-        Returns
-        --------
-            tau_v:     n array of the joint viscous friction torque 
-        """
-        if dq is None:
-            dq = self.dq
-
-        return self.fv.dot(dq)
-    
-    def colomb_friction_torque(self, dq:(np.array or None)=None) -> np.ndarray[float]:
-        """
-        Compute the coulomb friction torques, such as:
-        .. math:: \tau_{ci}(\dot{q}_i) = f_{c,i}\sign(\dot{q}_i)
-        Args:
-            dq:       joint velocity array (optional)
-        Returns
-        --------
-            tau_c:     n array of the joint coulomb friction torque 
-        """
-        if dq is None:
-            dq = self.dq
-
-        return self.fc.dot(np.sign(dq))
-    
-    def colomb_friction_offset_torque(self) -> np.ndarray[float]:
-        """
-        Compute the coulomb friction torques offset, such as:
-        .. math:: \tau_{0i} = f_{0,i}
-        
-        Returns
-        --------
-            tau_0:     n array of the joint coulomb friction torque offset
-        """
-
-        return self.f0
-
-    def direct_dynamic(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, f_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
-        """
-        Direct dynamic model with friction
-
-        Arg:
-            tau:      torque input array 
-            q:        joint position array (optional)
-            dq:       joint velocity array (optional)
-            f_ext:    external force array (in the global frame) f(rob->env) at the endpoint of the robot (default value is a null array)
-        Returns
-        --------
-            ddq:      n array of the joint acceleration 
-        """
-        if q is None:
-            q = self.q
-        if dq is None:
-            dq = self.dq
-
-        J = self.jacobian(q)
-        A = self.mass_matrix(q)
-        C = self.coriolis_matrix(q, dq)
-        g = self.gravity_torque(q)
-        tau_f = self.viscous_friction_torque(q) + self.coulomb_friction_torque(q) + self.viscous_friction_offset_torque()
-
-        if f_ext is None:
-            tau_ext = np.zeros((self.robot.nq))
-        else:
-            tau_ext = J.T.dot(f_ext) # TODO: the user should provide tau_ext directly so that f_ext can be forces exerted on any part of the body
-
-        ddq = np.linalg.inv(A).dot(tau - tau_ext - C.dot(dq) - g - tau_f)
-        return np.array(ddq)

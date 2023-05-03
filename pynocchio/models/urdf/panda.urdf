@@ -15,7 +15,7 @@
   <!-- =============================================================== -->
   <link name="world" />
     <joint name="world_joint" type="fixed">
-      <origin xyz="0 -0.6 0" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <parent link="world" />
       <child  link="panda_link0" />
     </joint>
@@ -242,12 +242,19 @@
     <child link="panda_link8"/>
     <axis xyz="0 0 0"/>
   </joint>
-  <link name="panda_tool"/>
-  <joint name="panda_joint_tool" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
+  <link name="panda_FT">
+    <inertial>
+      <origin rpy="0 0 0.392699081699" xyz="0 0 0"/>
+      <mass value="0.0001"/>
+      <inertia ixx="0.000015" ixy="0.0" ixz="0.0" iyy="0.000005" iyz="-0.00004" izz="0.000012"/>
+    </inertial>
+  </link>
+  <joint name="panda_jointFT" type="fixed">
+    <origin rpy="0 0 -0.785398163397" xyz="0 0 0"/>
     <parent link="panda_link8"/>
-    <child link="panda_tool"/>
+    <child link="panda_FT"/>
     <axis xyz="0 0 0"/>
   </joint>
+
 </robot>
 

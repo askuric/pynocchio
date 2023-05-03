@@ -4,8 +4,9 @@ import time
 import pinocchio as pin
 
 from pynocchio import RobotWrapper
+from pynocchio import FrictionRobotWrapper
 
-#write a test loading a robot and checking the number of joints
+# write a test loading a robot and checking the number of joints
 def test_load_robot():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
     assert panda.robot.nq == 7
@@ -18,7 +19,7 @@ def test_load_visual_with_initial_pose():
         panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf", mesh_path="pynocchio/models", q=q0)
     except:
         assert False
-    time.sleep(0.2)
+    time.sleep(0.3)
     assert np.allclose(panda.q, q0)
 
 # check for value exception for no path or xml
@@ -126,7 +127,6 @@ def test_jacobian_dot():
     ])
     assert np.allclose(J_dot, J_dot_com, atol=1e-2)
 
-
 # write a test checking the mass matrix
 def test_mass_matrix():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
@@ -151,7 +151,6 @@ def test_mass_matrix():
          [-0.049,  0.003, -0.049, -0.002, -0.049, -0.001, 0.048]]
     )
     assert np.allclose(M, M_comp, atol=1e-2)
-
 
 # write a test checking the coriolis matrix
 def test_coriolis_matrix():
@@ -200,7 +199,7 @@ def test_joint_data_update():
     panda_data = np.concatenate((panda.q, panda.dq, panda.ddq, panda.tau), axis=None)
     assert np.allclose(test_data, panda_data, atol=1e-2)
 
-    # test joint update with saturation
+# test joint update with saturation
 def test_joint_data_update_saturation():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
     # test max
@@ -220,3 +219,35 @@ def test_joint_data_update_saturation():
     dq_down_sat = np.allclose(panda.dq, panda.dq_min)
     tau_down_sat = np.allclose(panda.tau, panda.tau_min)
     assert np.concatenate((q_up_sat, dq_up_sat, tau_up_sat, q_down_sat, dq_down_sat, tau_down_sat), axis=None).all()
+
+# test the initialisation of the friction model
+def test_load_friction_robot_without_friction():
+    panda_fric = FrictionRobotWrapper('panda_link8', urdf_path="pynocchio/models/urdf/panda.urdf")
+    fv_test = panda_fric.fv == np.zeros((panda_fric.n))
+    fc_test = panda_fric.fc == np.zeros((panda_fric.n))
+    f0_test = panda_fric.f0 == np.zeros((panda_fric.n))
+    assert np.concatenate((fv_test,fc_test,f0_test), axis=None).all()
+
+# test the initialisation of the friction model with friction set
+def test_load_friction_robot_without_friction():
+    fv = [0.0665, 0.1987, 0.0399, 0.2257, 0.1023, -0.0132, 0.0638]
+    fc = [0.2450, 0.1523, 0.1827, 0.3591, 0.2669, 0.1658, 0.2109]
+    f0 = [0, 0, 0, 0, 0, 0, 0]
+    panda = FrictionRobotWrapper('panda_link8', urdf_path="pynocchio/models/urdf/panda.urdf", fv=fv, fc=fc, f0=f0)
+    assert np.allclose(np.concatenate((fv, fc, f0), axis=None), np.concatenate((panda.fv, panda.fc, panda.f0), axis=None), atol=1e-2)
+
+# test setting friction gains from vector of size (1,n) or (n,1)
+def test_friction_gains_input():
+    fv = np.random.uniform(-1,1,(1,7))
+    panda = FrictionRobotWrapper('panda_link8', urdf_path="pynocchio/models/urdf/panda.urdf", fv=fv)
+    assert np.allclose(fv.squeeze(), panda.fv, atol=1e-2)
+
+# test direct dynamics method with null friction gains
+def test_direct_dynamics_without_friction_against_aba():
+    panda = FrictionRobotWrapper('panda_link8', urdf_path="pynocchio/models/urdf/panda.urdf")
+    q = pin.randomConfiguration(panda.robot)
+    dq = np.random.uniform(panda.dq_min,panda.dq_max)
+    tau = np.random.uniform(panda.tau_min,panda.tau_max)
+    ddq = panda.direct_dynamic(tau=tau, q=q, dq=dq)
+    ddq_aba = pin.aba(panda.robot, panda.data, q, dq, tau)
+    assert np.allclose(ddq, ddq_aba, atol=1e-2)

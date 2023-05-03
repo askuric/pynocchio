@@ -12,26 +12,26 @@ class FrictionRobotWrapper(RobotWrapper):
         fc (np.ndarray): An array containing the Coulomb friction gain.
         f0 (np.ndarray): An array containing the Coulomb friction offset gain.
     """
-    def __init__(self, robot_model, fv:(np.ndarray[float] or None)=None, fc:(np.ndarray[float] or None)=None, f0:(np.ndarray[float] or None)=None):
+    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray[float] or None)=None, fv:(np.ndarray[float] or None)=None, fc:(np.ndarray[float] or None)=None, f0:(np.ndarray[float] or None)=None):
 
-        super().__init__(robot_model)
+        super().__init__(tip, urdf_path, xml_path, mesh_path, q)
 
-        if fv:
+        if fv is not None:
             self.set_viscous_friction_gains(fv)
         else:
             self.fv = np.zeros(self.robot.nq)
 
-        if fc:
+        if fc is not None:
             self.set_coulomb_friction_gains(fc)
         else:
             self.fc = np.zeros(self.robot.nq)
 
-        if f0:
+        if f0 is not None:
             self.set_coulomb_friction_offset_gains(f0)
         else:
             self.f0 = np.zeros(self.robot.nq)
     
-    def set_viscous_friction_gain(self, fv:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
+    def set_viscous_friction_gains(self, fv:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
         """
         Define the gains of the Coulomb friction torques, such as:
         .. math:: \\tau_{fi}(\\dot{q}_i) = f_{v,i} \\dot{q}_i
@@ -50,7 +50,7 @@ class FrictionRobotWrapper(RobotWrapper):
 
         self.fv = fv
 
-    def set_coulomb_friction_gain(self, fc:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
+    def set_coulomb_friction_gains(self, fc:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
         """
         Define the gains of the Coulomb friction torques, such as:
         .. math:: \\tau_{Ci}(\\dot{q}_i) = f_{c,i} \\sign(\\dot{q}_i)
@@ -69,24 +69,24 @@ class FrictionRobotWrapper(RobotWrapper):
 
         self.fc = fc
 
-    def set_coulomb_friction_offset_gain(self, fo:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
+    def set_coulomb_friction_offset_gains(self, f0:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
         """
         Define the gains of the Coulomb friction offset torques, such as:
         .. math:: \\tau_{Ci}(\\dot{q}_i) = f_{o,i}
         Args:
-            fo:       Coulomb friction offset (np.array 1D of size equal to the nb of joints)
+            f0:       Coulomb friction offset (np.array 1D of size equal to the nb of joints)
         """       
-        if not isinstance(fo, np.ndarray):
-            fo = np.array(fo) 
+        if not isinstance(f0, np.ndarray):
+            f0 = np.array(f0) 
 
-        if fo.ndim == 1 and fo.size == self.robot.nq:
-            self.fo = fo
-        elif fo.ndim == 2 and (fo.shape[0] == 1 or fo.shape[1] == 1):
-            self.fo = fo.squeeze()
+        if f0.ndim == 1 and f0.size == self.robot.nq:
+            self.f0 = f0
+        elif f0.ndim == 2 and (f0.shape[0] == 1 or f0.shape[1] == 1):
+            self.f0 = f0.squeeze()
         else:
-            raise ValueError(f"fo must be a 1D array of size {self.robot.nq}, according to the number of joint of the robot.")
+            raise ValueError(f"f0 must be a 1D array of size {self.robot.nq}, according to the number of joint of the robot.")
         
-        self.fo = fo
+        self.f0 = f0
 
     def viscous_friction_torque(self, dq:(np.array or None)=None) -> np.ndarray[float]:
         """
@@ -152,7 +152,7 @@ class FrictionRobotWrapper(RobotWrapper):
         A = self.mass_matrix(q)
         C = self.coriolis_matrix(q, dq)
         g = self.gravity_torque(q)
-        tau_f = self.viscous_friction_torque(q) + self.coulomb_friction_torque(q) + self.viscous_friction_offset_torque()
+        tau_f = self.viscous_friction_torque(dq) + self.colomb_friction_torque(q) + self.colomb_friction_offset_torque()
 
         if f_ext is None:
             tau_ext = np.zeros((self.robot.nq))

@@ -30,7 +30,6 @@ class RobotWrapper:
         viz (MeshcatVisualizer): The MeshcatVisualizer object for visualizing the robot.
     """
     def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray[float] or None)=None):
-
         """
         RobotWrapper constructor
 
@@ -395,6 +394,7 @@ class RobotWrapper:
             q:        joint position array (optional)
             dq:       joint velocity array (optional)
             tau_ext:  external force array (in the local frame) f(rob->env)
+
         Returns
         --------
             ddq:      n array of the joint acceleration

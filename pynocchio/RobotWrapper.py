@@ -407,7 +407,7 @@ class RobotWrapper:
             tau_ext = np.zeros(self.robot.nq)
 
         #ddq = pin.aba(model=self.robot, data=self.data, q=q, v=dq, tau=tau, fext=tau_ext)
-        ddq = pin.aba(self.robot, self.data, q, dq, tau, tau_ext)
+        ddq = pin.aba(self.robot, self.data, q, dq, tau - tau_ext)
         return np.array(ddq)
  
     def update_joint_data(self, q:(np.ndarray or None)=None, dq:(np.ndarray or None)=None, ddq:(np.ndarray or None)=None, tau:(np.ndarray or None)=None, apply_saturation=False):

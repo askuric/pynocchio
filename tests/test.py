@@ -187,6 +187,18 @@ def test_direct_dynamics_gravity_compensation():
     ddq = panda.direct_dynamic(tau=tau, q=q, dq=dq)
     assert np.allclose(ddq, np.zeros(panda.robot.nq))
 
+def test_aba_with_external_force():
+    panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
+    q = pin.randomConfiguration(panda.robot)
+    dq = np.random.uniform(panda.dq_min,panda.dq_max)
+    tau = panda.gravity_torque(q)
+    fext = np.array([1, 2, 3, 0.4, 0.5, 0.6])
+    tau_ext = panda.jacobian(q).T@fext
+    #
+    ddq = panda.direct_dynamic(tau=tau, q=q, dq=dq, f_ext=fext)
+    ddq_aba = panda.direct_dynamic_aba(tau=tau, q=q, dq=dq, tau_ext=tau_ext)
+    assert np.allclose(ddq, ddq_aba, atol=1e-2)
+
 # test joint update
 def test_joint_data_update():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")

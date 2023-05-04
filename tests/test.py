@@ -132,15 +132,6 @@ def test_mass_matrix():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
     q = np.zeros(panda.robot.nq)
     M = panda.mass_matrix(q)
-    # M_comp = np.array(
-    #     [[ 0.16, -0.06 , 0.12,  0.02,  0.08,  0. ,  -0.05],
-    #     [-0.06 , 2.66 ,-0.06, -1.13, -0.05 ,-0.03,  0.  ],
-    #     [ 0.12 ,-0.06 ,0.12 , 0.02 , 0.08  ,0.   ,-0.05],
-    #     [ 0.02 ,-1.13 , 0.02,  0.63,  0.03 , 0.04, -0.  ],
-    #     [ 0.08 ,-0.05 , 0.08,  0.03,  0.08 , 0.  , -0.05],
-    #     [ 0.   ,-0.03 , 0.  ,  0.04,  0.   , 0.08, -0.  ],
-    #     [-0.05 , 0.   ,-0.05, -0. ,  -0.05 ,-0.  ,  0.05]]
-    # )
     M_comp = np.array(
         [[ 0.235, -0.061,  0.198, 0.024,  0.154,  0.001, -0.049],
          [-0.061,  2.659, -0.060, -1.129, -0.048, -0.032, 0.003],
@@ -241,7 +232,7 @@ def test_load_friction_robot_without_friction():
     assert np.concatenate((fv_test,fc_test,f0_test), axis=None).all()
 
 # test the initialisation of the friction model with friction set
-def test_load_friction_robot_without_friction():
+def test_load_friction_robot_with_friction():
     fv = [0.0665, 0.1987, 0.0399, 0.2257, 0.1023, -0.0132, 0.0638]
     fc = [0.2450, 0.1523, 0.1827, 0.3591, 0.2669, 0.1658, 0.2109]
     f0 = [0, 0, 0, 0, 0, 0, 0]

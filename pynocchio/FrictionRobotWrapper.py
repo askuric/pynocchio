@@ -34,7 +34,9 @@ class FrictionRobotWrapper(RobotWrapper):
     def set_viscous_friction_gains(self, fv:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
         """
         Define the gains of the Coulomb friction torques, such as:
+
         .. math:: \\tau_{fi}(\\dot{q}_i) = f_{v,i} \\dot{q}_i
+        
         Args:
             fv:       Viscous friction (np.array 1D of size equal to the nb of joints)
         """
@@ -53,7 +55,9 @@ class FrictionRobotWrapper(RobotWrapper):
     def set_coulomb_friction_gains(self, fc:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
         """
         Define the gains of the Coulomb friction torques, such as:
+
         .. math:: \\tau_{Ci}(\\dot{q}_i) = f_{c,i} \\sign(\\dot{q}_i)
+
         Args:
             fc:       Coulomb friction (np.array 1D of size equal to the nb of joints)
         """
@@ -72,7 +76,9 @@ class FrictionRobotWrapper(RobotWrapper):
     def set_coulomb_friction_offset_gains(self, f0:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
         """
         Define the gains of the Coulomb friction offset torques, such as:
+
         .. math:: \\tau_{Ci}(\\dot{q}_i) = f_{o,i}
+
         Args:
             f0:       Coulomb friction offset (np.array 1D of size equal to the nb of joints)
         """       
@@ -91,7 +97,9 @@ class FrictionRobotWrapper(RobotWrapper):
     def viscous_friction_torque(self, dq:(np.array or None)=None) -> np.ndarray[float]:
         """
         Compute the viscous friction torques, such as:
+
         .. math:: \\tau_{fi}(\\dot{q}_i) = f_{v,i} \\dot{q}_i
+
         Args:
             dq:       joint velocity array (optional)
         Returns
@@ -106,7 +114,9 @@ class FrictionRobotWrapper(RobotWrapper):
     def colomb_friction_torque(self, dq:(np.array or None)=None) -> np.ndarray[float]:
         """
         Compute the coulomb friction torques, such as:
+
         .. math:: \\tau_{ci}(\\dot{q}_i) = f_{c,i}\\sign(\\dot{q}_i)
+
         Args:
             dq:       joint velocity array (optional)
         Returns
@@ -121,6 +131,7 @@ class FrictionRobotWrapper(RobotWrapper):
     def colomb_friction_offset_torque(self) -> np.ndarray[float]:
         """
         Compute the coulomb friction torques offset, such as:
+        
         .. math:: \\tau_{0i} = f_{0,i}
         
         Returns
@@ -134,11 +145,12 @@ class FrictionRobotWrapper(RobotWrapper):
         """
         Direct dynamic model with friction
 
-        Arg:
+        Args:
             tau:      torque input array 
             q:        joint position array (optional)
             dq:       joint velocity array (optional)
             f_ext:    external force array (in the global frame) f(rob->env) at the endpoint of the robot (default value is a null array)
+        
         Returns
         --------
             ddq:      n array of the joint acceleration 

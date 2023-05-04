@@ -231,11 +231,12 @@ class RobotWrapper:
     def jacobian_weighted_pseudo_inv(self, W:np.ndarray[np.ndarray[float]], q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray[np.ndarray[float]]:
         """
         Weighted pseudo inverse
+
         .. math:: J^{W+} = W^{-1} J^t (JW^{-1}J^t)^{-1}
 
         Args:
-            W:          weighting matrix (must be invertible)
-            q:          currrent robot configuration (optional)
+            W: weighting matrix (must be invertible)
+            q: currrent robot configuration (optional)
             frame_name: name of the robot frame for which to calculate the jacobian (optional - default tip frame)
             frame_align: determining which frame to express the jacoiban in. Can be either: LOCAL_WORLD_ALIGNED (default), WORLD or LOCAL    
         
@@ -309,7 +310,7 @@ class RobotWrapper:
         https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html
 
         Args:
-            oMdes:  SE3 matrix expressed in the world frame of the robot's endefector desired pose    
+            oMdes: SE3 matrix expressed in the world frame of the robot's endefector desired pose    
             q: currrent robot configuration (default robot's neutral position)
             verbose: bool variable enabling verbose ouptut (default True)
 
@@ -356,9 +357,11 @@ class RobotWrapper:
     
     def direct_dynamic(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, f_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
         """
-        Direct dynamic model
+        Direct dynamic model.
 
-        Arg:
+        .. math:: \\ddot{q} = A^{-1}(q) \\left( \\tau - J^t(q)f_{ext} - C(q,\\dot{q})\\dot{q} - g(q) \\right)
+
+        Args:
             tau:      torque input array 
             q:        joint position array (optional)
             dq:       joint velocity array (optional)
@@ -389,7 +392,7 @@ class RobotWrapper:
         Direct dynamic model using ABA's method (R. Featherstone 1983), with the implementation described in Analytical Derivatives
         of Rigid Body Dynamics Algorithms, by Justin Carpentier and Nicolas Mansard (http://www.roboticsproceedings.org/rss14/p38.pdf)
 
-        Arg:
+        Args:
             tau:      torque input array
             q:        joint position array (optional)
             dq:       joint velocity array (optional)
@@ -414,7 +417,7 @@ class RobotWrapper:
         """
         Update the joint states of the robot. The joint position, velocity, acceleration and torque are all optional.
 
-        Arg:
+        Args:
             q:                  joint position array (optional)
             dq:                 joint velocity array (optional)
             ddq:                joint acceleration array (optional)
@@ -444,7 +447,7 @@ class RobotWrapper:
         """
         Clip the joint position q, according to the limits specified in the robot model
 
-        Arg:
+        Args:
             q:                  joint position array (optional)
             update_joint_data:  boolean to update this class self.q with the clipping (default value is False)
         """
@@ -459,7 +462,7 @@ class RobotWrapper:
         """
         Clip the joint velocity dq, according to the limits specified in the robot model
 
-        Arg:
+        Args:
             dq:                  joint velocity array (optional)
             update_joint_data:   boolean to update this class self.dq with the clipping (default value is False)
         """
@@ -474,7 +477,7 @@ class RobotWrapper:
         """
         Clip the joint acceleration ddq, according to the limits specified by the user. If no limits were specified, this function will fail.
 
-        Arg:
+        Args:
             ddq:                 joint acceleration array (optional)
             update_joint_data:   boolean to update this class self.ddq with the clipping (default value is False)
         """
@@ -489,7 +492,7 @@ class RobotWrapper:
         """
         Clip the joint jerk dddq, according to the limits specified by the user. If no limits were specified, this function will fail.
 
-        Arg:
+        Args:
             dddq:                joint jerk array (optional)
             update_joint_data:   boolean to update this class self.dddq with the clipping (default value is False)
         """
@@ -504,7 +507,7 @@ class RobotWrapper:
         """
         Clip the joint torque tau, according to the limits specified in the robot model.
 
-        Arg:
+        Args:
             tau:                 joint torque array (optional)
             update_joint_data:   boolean to update this class self.tau with the clipping (default value is False)
         """
@@ -525,7 +528,7 @@ class RobotWrapper:
         """
         Update the joint state in the 3D meshcat visualiser
 
-        Arg:
+        Args:
             q:        joint position array
 
         """
@@ -537,7 +540,7 @@ class RobotWrapper:
         """
         Add a 3D object from a dae, obj or stl file. If the name already exists, it updates the object state.
 
-        Arg:
+        Args:
             obj_file_path:      file path of the 3D object (string)
             name_id:            reference identifier for the object (string)
             material:           meshcat.geometry material defining color, texture and opacity of the object

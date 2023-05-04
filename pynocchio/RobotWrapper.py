@@ -29,7 +29,7 @@ class RobotWrapper:
         tau (np.ndarray): An array containing the current joint torques of the robot.
         viz (MeshcatVisualizer): The MeshcatVisualizer object for visualizing the robot.
     """
-    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray[float] or None)=None):
+    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray[float] or None)=None, open_viewer:(bool or None)=False):
         """
         RobotWrapper constructor
 
@@ -86,7 +86,7 @@ class RobotWrapper:
 
         if mesh_path:
             self.viz = MeshcatVisualizer(self.robot, self.collision_model, self.visual_model)
-            self.viz.initViewer(open=True)
+            self.viz.initViewer(open=open_viewer)
             self.viz.loadViewerModel("pinocchio")
             if q is not None:
                 self.update_visualisation()
@@ -514,6 +514,12 @@ class RobotWrapper:
         if update_joint_data:
             self.tau = tau
         return tau
+
+    def open_viewer(self):
+        """
+        Open the web visualiser.
+        """
+        self.viz.viewer.open()
 
     def update_visualisation(self, q:(np.ndarray[float] or None)=None) -> None:
         """

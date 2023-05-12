@@ -11,8 +11,10 @@ class FrictionRobotWrapper(RobotWrapper):
     :ivar np.ndarray c: An array containing the Coulomb friction gain.
     :ivar np.ndarray  0: An array containing the Coulomb friction offset gain.
     """
-    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray[float] or None)=None, fv:(np.ndarray[float] or None)=None, fc:(np.ndarray[float] or None)=None, f0:(np.ndarray[float] or None)=None):
-
+    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray or None)=None, fv:(np.ndarray or None)=None, fc:(np.ndarray or None)=None, f0:(np.ndarray or None)=None):
+        """
+        
+        """
         super().__init__(tip, urdf_path, xml_path, mesh_path, q)
 
         if fv is not None:
@@ -30,7 +32,7 @@ class FrictionRobotWrapper(RobotWrapper):
         else:
             self.f0 = np.zeros(self.model.nq)
     
-    def set_viscous_friction_gains(self, fv:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
+    def set_viscous_friction_gains(self, fv:(np.ndarray or np.ndarray)):
         """
         Define the gains of the Coulomb friction torques, such as:
 
@@ -51,7 +53,7 @@ class FrictionRobotWrapper(RobotWrapper):
 
         self.fv = fv
 
-    def set_coulomb_friction_gains(self, fc:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
+    def set_coulomb_friction_gains(self, fc:(np.ndarray or np.ndarray)):
         """
         Define the gains of the Coulomb friction torques, such as:
 
@@ -72,7 +74,7 @@ class FrictionRobotWrapper(RobotWrapper):
 
         self.fc = fc
 
-    def set_coulomb_friction_offset_gains(self, f0:(np.ndarray[float] or np.ndarray[np.ndarray[float]])):
+    def set_coulomb_friction_offset_gains(self, f0:(np.ndarray or np.ndarray)):
         """
         Define the gains of the Coulomb friction offset torques, such as:
 
@@ -93,7 +95,7 @@ class FrictionRobotWrapper(RobotWrapper):
         
         self.f0 = f0
 
-    def viscous_friction_torque(self, dq:(np.array or None)=None) -> np.ndarray[float]:
+    def viscous_friction_torque(self, dq:(np.array or None)=None) -> np.ndarray:
         """
         Compute the viscous friction torques, such as:
 
@@ -110,7 +112,7 @@ class FrictionRobotWrapper(RobotWrapper):
 
         return self.fv.dot(dq)
     
-    def colomb_friction_torque(self, dq:(np.array or None)=None) -> np.ndarray[float]:
+    def colomb_friction_torque(self, dq:(np.array or None)=None) -> np.ndarray:
         """
         Compute the coulomb friction torques, such as:
 
@@ -127,7 +129,7 @@ class FrictionRobotWrapper(RobotWrapper):
 
         return self.fc.dot(np.sign(dq))
     
-    def colomb_friction_offset_torque(self) -> np.ndarray[float]:
+    def colomb_friction_offset_torque(self) -> np.ndarray:
         """
         Compute the coulomb friction torques offset, such as:
         
@@ -140,7 +142,7 @@ class FrictionRobotWrapper(RobotWrapper):
 
         return self.f0
 
-    def direct_dynamics(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, f_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
+    def direct_dynamics(self, tau:np.ndarray, q:(np.ndarray or None)=None, dq:(np.ndarray or None)=None, f_ext:(np.ndarray or None)=None) -> np.ndarray:
         """
         Direct dynamic model with friction
 

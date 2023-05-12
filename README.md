@@ -45,7 +45,7 @@ Parameters:
 - urdf_path (str or None): Path to the robot's URDF file (optional, either urdf or xml).
 - xml_path (str or None):  Path to the robot's XML file (optional, either urdf or xml).
 - mesh_path (str or None): Absolute path to the robot's meshes folder for visualization (optional).
-- q (np.ndarray[float] or None): Array containing the robot's initial joint positions (optional).
+- q (np.ndarray or None): Array containing the robot's initial joint positions (optional).
 
 
 ## Testing the code

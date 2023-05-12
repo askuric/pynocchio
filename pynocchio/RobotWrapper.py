@@ -30,7 +30,7 @@ class RobotWrapper:
     :ivar np.ndarray tau: An array containing the current joint torques of the robot.
     :ivar MeshcatVisualizer viz: The MeshcatVisualizer object for visualizing the robot.
     """
-    def __init__(self, tip:(str or None)=None,  robot_wrapper=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray[float] or None)=None, open_viewer:(bool or None)=False):
+    def __init__(self, tip:(str or None)=None,  robot_wrapper=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray or None)=None, open_viewer:(bool or None)=False):
         """
         RobotWrapper constructor
 
@@ -46,12 +46,15 @@ class RobotWrapper:
         :raises ValueError: If neither urdf_path nor xml_path is specified.
 
         """
+
+        self.visual_model = None
+        self.collision_model = None
+
         if robot_wrapper:
             self.model = robot_wrapper.model
             if robot_wrapper.collision_model and robot_wrapper.visual_model:
                 self.collision_model = robot_wrapper.collision_model
                 self.visual_model =  robot_wrapper.visual_model
-
         elif mesh_path:
             if urdf_path:
                 self.model, self.collision_model, self.visual_model = pin.buildModelsFromUrdf(urdf_path, mesh_path)
@@ -106,7 +109,7 @@ class RobotWrapper:
             time.sleep(0.2) # small time window for loading the model
 
 
-    def forward(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None) -> pin.SE3:
+    def forward(self, q:(np.ndarray or None)=None, frame_name:(str or None)=None) -> pin.SE3:
         """
         Forward kinematics calculating function
 
@@ -130,7 +133,7 @@ class RobotWrapper:
             pin.framesForwardKinematics(self.model,self.data, np.array(q))
         return self.data.oMf[frame_id]
        
-    def dk_position(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None) -> np.ndarray[float]: 
+    def dk_position(self, q:(np.ndarray or None)=None, frame_name:(str or None)=None) -> np.ndarray: 
         """
         Forward kinematics position calculating function
 
@@ -144,7 +147,7 @@ class RobotWrapper:
         """
         return self.forward(q, frame_name).translation
 
-    def dk_orientation_matrix(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None) -> np.ndarray[np.ndarray[float]]:
+    def dk_orientation_matrix(self, q:(np.ndarray or None)=None, frame_name:(str or None)=None) -> np.ndarray:
         """
         Forward kinematics orientation calculating function
 
@@ -158,7 +161,7 @@ class RobotWrapper:
         """
         return self.forward(q,frame_name).rotation
 
-    def jacobian(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray[np.ndarray[float]]:
+    def jacobian(self, q:(np.ndarray or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray:
         """
         Jacobian matrix calculating function
 
@@ -184,7 +187,7 @@ class RobotWrapper:
 
         return np.array(Jac)
     
-    def jacobian_dot(self, q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray[np.ndarray[float]]:
+    def jacobian_dot(self, q:(np.ndarray or None)=None, dq:(np.ndarray or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray:
         """
         Jacobian time derivative matrix calculating function
 
@@ -213,7 +216,7 @@ class RobotWrapper:
 
         return np.array(Jdot)
 
-    def jacobian_position(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray[np.ndarray[float]]:
+    def jacobian_position(self, q:(np.ndarray or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray:
         """
         Position jacobian matrix calculating function
 
@@ -228,7 +231,7 @@ class RobotWrapper:
         """
         return self.jacobian(q, frame_name, frame_align)[:3, :]
 
-    def jacobian_pseudo_inv(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray[np.ndarray[float]]:
+    def jacobian_pseudo_inv(self, q:(np.ndarray or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray:
         """
         Jacobian matrix pseudo inverse calculating function
 
@@ -243,7 +246,7 @@ class RobotWrapper:
         """
         return np.linalg.pinv(self.jacobian(q,frame_name,frame_align))
 
-    def jacobian_weighted_pseudo_inv(self, W:np.ndarray[np.ndarray[float]], q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray[np.ndarray[float]]:
+    def jacobian_weighted_pseudo_inv(self, W:np.ndarray, q:(np.ndarray or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray:
         """
         Weighted pseudo inverse
 
@@ -267,7 +270,7 @@ class RobotWrapper:
         
         return pWJac
 
-    def gravity_torque(self, q:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
+    def gravity_torque(self, q:(np.ndarray or None)=None) -> np.ndarray:
         """
         Gravity torque vector
 
@@ -283,7 +286,7 @@ class RobotWrapper:
         pin.computeGeneralizedGravity(self.model,self.data, np.array(q))
         return np.array(self.data.g)
 
-    def mass_matrix(self, q:(np.ndarray[float] or None)=None) -> np.ndarray[np.ndarray[float]]:
+    def mass_matrix(self, q:(np.ndarray or None)=None) -> np.ndarray:
         """
         Mass matrix calcualation function
 
@@ -299,7 +302,7 @@ class RobotWrapper:
         pin.crba(self.model,self.data,np.array(q))
         return np.array(self.data.M)
 
-    def coriolis_matrix(self, q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None) -> np.ndarray[np.ndarray[float]]:
+    def coriolis_matrix(self, q:(np.ndarray or None)=None, dq:(np.ndarray or None)=None) -> np.ndarray:
         """
         Coriolis matrix calcualation function
 
@@ -319,7 +322,7 @@ class RobotWrapper:
         pin.computeCoriolisMatrix(self.model,self.data,np.array(q),np.array(dq))
         return np.array(self.data.C)
     
-    def ik(self, oMdes:pin.SE3, q:(np.ndarray[float] or None)=None, verbose:bool=True) -> np.ndarray[float]:
+    def ik(self, oMdes:pin.SE3, q:(np.ndarray or None)=None, verbose:bool=True) -> np.ndarray:
         """
         Iterative inverse kinematics based on the example code from
         https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html
@@ -370,7 +373,7 @@ class RobotWrapper:
         
         return np.array(q)
     
-    def direct_dynamics(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, f_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
+    def direct_dynamics(self, tau:np.ndarray, q:(np.ndarray or None)=None, dq:(np.ndarray or None)=None, f_ext:(np.ndarray or None)=None) -> np.ndarray:
         """
         Direct dynamic model.
 
@@ -402,7 +405,7 @@ class RobotWrapper:
         ddq = np.linalg.inv(A).dot(tau - tau_ext - C.dot(dq) - g)
         return np.array(ddq)
 
-    def direct_dynamics_aba(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, tau_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
+    def direct_dynamics_aba(self, tau:np.ndarray, q:(np.ndarray or None)=None, dq:(np.ndarray or None)=None, tau_ext:(np.ndarray or None)=None) -> np.ndarray:
         """
         Direct dynamic model using ABA's method (R. Featherstone 1983), with the implementation described in Analytical Derivatives
         of Rigid Body Dynamics Algorithms, by Justin Carpentier and Nicolas Mansard (http://www.roboticsproceedings.org/rss14/p38.pdf)
@@ -458,7 +461,7 @@ class RobotWrapper:
             if tau is not None:
                 self.tau = np.array(tau)
 
-    def apply_joint_position_limits(self, q:(np.ndarray[float] or None)=None, update_joint_data:bool=False):
+    def apply_joint_position_limits(self, q:(np.ndarray or None)=None, update_joint_data:bool=False):
         """
         Clip the joint position q, according to the limits specified in the robot model
 
@@ -473,7 +476,7 @@ class RobotWrapper:
             self.q = q
         return q
 
-    def apply_joint_velocity_limits(self, dq:(np.ndarray[float] or None)=None, update_joint_data:bool=False):
+    def apply_joint_velocity_limits(self, dq:(np.ndarray or None)=None, update_joint_data:bool=False):
         """
         Clip the joint velocity dq, according to the limits specified in the robot model
 
@@ -488,7 +491,7 @@ class RobotWrapper:
             self.dq = dq
         return dq
 
-    def apply_joint_acceleration_limits(self, ddq:(np.ndarray[float] or None)=None, update_joint_data:bool=False):
+    def apply_joint_acceleration_limits(self, ddq:(np.ndarray or None)=None, update_joint_data:bool=False):
         """
         Clip the joint acceleration ddq, according to the limits specified by the user. If no limits were specified, this function will fail.
 
@@ -503,7 +506,7 @@ class RobotWrapper:
             self.ddq = ddq
         return ddq
 
-    def apply_joint_jerk_limits(self, dddq:(np.ndarray[float] or None)=None, update_joint_data:bool=False):
+    def apply_joint_jerk_limits(self, dddq:(np.ndarray or None)=None, update_joint_data:bool=False):
         """
         Clip the joint jerk dddq, according to the limits specified by the user. If no limits were specified, this function will fail.
 
@@ -518,7 +521,7 @@ class RobotWrapper:
             self.dddq = dddq
         return dddq
 
-    def apply_joint_effort_limits(self, tau:(np.ndarray[float] or None)=None, update_joint_data:bool=False):
+    def apply_joint_effort_limits(self, tau:(np.ndarray or None)=None, update_joint_data:bool=False):
         """
         Clip the joint torque tau, according to the limits specified in the robot model.
 
@@ -539,7 +542,7 @@ class RobotWrapper:
         """
         self.viz.viewer.open()
 
-    def update_visualisation(self, q:(np.ndarray[float] or None)=None) -> None:
+    def update_visualisation(self, q:(np.ndarray or None)=None) -> None:
         """
         Update the joint state in the 3D meshcat visualiser
 

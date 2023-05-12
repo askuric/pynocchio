@@ -2,7 +2,7 @@
 import numpy as np
 
 from pynocchio import RobotWrapper
-import pinochcio as pin
+import pinocchio as pin
 
 class FrictionRobotWrapper(RobotWrapper):
     """

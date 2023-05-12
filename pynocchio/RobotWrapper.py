@@ -30,8 +30,7 @@ class RobotWrapper:
     :ivar np.ndarray tau: An array containing the current joint torques of the robot.
     :ivar MeshcatVisualizer viz: The MeshcatVisualizer object for visualizing the robot.
     """
-    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray[float] or None)=None):
-
+    def __init__(self, tip:(str or None)=None,  robot_wrapper=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray[float] or None)=None, open_viewer:(bool or None)=False):
         """
         RobotWrapper constructor
 
@@ -41,11 +40,19 @@ class RobotWrapper:
             xml_path:   Path to the robot's XML file (optional, but either urdf_path or xml_path must be specified)
             mesh_path:  Path to the robot's meshes folder for visualization (optional)
             q:          An array containing the robot intial joint position (optional)
+            open_viewer: Bool variable specifying if the meshcat viewer will be opened or not, by default False
+            robot_wrapper: (pinocchio.RobotWrapper) object
 
         :raises ValueError: If neither urdf_path nor xml_path is specified.
 
         """
-        if mesh_path:
+        if robot_wrapper:
+            self.model = robot_wrapper.model
+            if robot_wrapper.collision_model and robot_wrapper.visual_model:
+                self.collision_model = robot_wrapper.collision_model
+                self.visual_model =  robot_wrapper.visual_model
+
+        elif mesh_path:
             if urdf_path:
                 self.model, self.collision_model, self.visual_model = pin.buildModelsFromUrdf(urdf_path, mesh_path)
             elif xml_path:
@@ -90,13 +97,15 @@ class RobotWrapper:
         self.ddq = np.zeros((self.model.nq)) # joint acceleration
         self.tau = np.zeros((self.model.nq)) # joint torque
 
-        if mesh_path is not None:
+        if self.visual_model and self.collision_model:
             self.viz = MeshcatVisualizer(self.model, self.collision_model, self.visual_model)
-            self.viz.initViewer(open=True)
+            self.viz.initViewer(open=open_viewer)
             self.viz.loadViewerModel("pinocchio")
             if q is not None:
                 self.update_visualisation()
             time.sleep(0.2) # small time window for loading the model
+
+
     def forward(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None) -> pin.SE3:
         """
         Forward kinematics calculating function
@@ -237,11 +246,12 @@ class RobotWrapper:
     def jacobian_weighted_pseudo_inv(self, W:np.ndarray[np.ndarray[float]], q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None, frame_align:pin.ReferenceFrame=pin.LOCAL_WORLD_ALIGNED) -> np.ndarray[np.ndarray[float]]:
         """
         Weighted pseudo inverse
+
         .. math:: J^{W+} = W^{-1} J^t (JW^{-1}J^t)^{-1}
 
         Args:
-            W:          weighting matrix (must be invertible)
-            q:          currrent robot configuration (optional)
+            W: weighting matrix (must be invertible)
+            q: currrent robot configuration (optional)
             frame_name: name of the robot frame for which to calculate the jacobian (optional - default tip frame)
             frame_align: determining which frame to express the jacoiban in. Can be either: LOCAL_WORLD_ALIGNED (default), WORLD or LOCAL    
         
@@ -315,7 +325,7 @@ class RobotWrapper:
         https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html
 
         Args:
-            oMdes:  SE3 matrix expressed in the world frame of the robot's endefector desired pose    
+            oMdes: SE3 matrix expressed in the world frame of the robot's endefector desired pose    
             q: currrent robot configuration (default robot's neutral position)
             verbose: bool variable enabling verbose ouptut (default True)
 
@@ -362,9 +372,11 @@ class RobotWrapper:
     
     def direct_dynamics(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, f_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
         """
-        Direct dynamic model
+        Direct dynamic model.
 
-        Arg:
+        .. math:: \\ddot{q} = A^{-1}(q) \\left( \\tau - J^t(q)f_{ext} - C(q,\\dot{q})\\dot{q} - g(q) \\right)
+
+        Args:
             tau:      torque input array 
             q:        joint position array (optional)
             dq:       joint velocity array (optional)
@@ -395,7 +407,7 @@ class RobotWrapper:
         Direct dynamic model using ABA's method (R. Featherstone 1983), with the implementation described in Analytical Derivatives
         of Rigid Body Dynamics Algorithms, by Justin Carpentier and Nicolas Mansard (http://www.roboticsproceedings.org/rss14/p38.pdf)
 
-        Arg:
+        Args:
             tau:      torque input array
             q:        joint position array (optional)
             dq:       joint velocity array (optional)
@@ -413,14 +425,14 @@ class RobotWrapper:
             tau_ext = np.zeros(self.model.nq)
 
         #ddq = pin.aba(model=self.model, data=self.data, q=q, v=dq, tau=tau, fext=tau_ext)
-        ddq = pin.aba(self.model, self.data, q, dq, tau, tau_ext)
+        ddq = pin.aba(self.model, self.data, q, dq, tau - tau_ext)
         return np.array(ddq)
  
     def update_joint_data(self, q:(np.ndarray or None)=None, dq:(np.ndarray or None)=None, ddq:(np.ndarray or None)=None, tau:(np.ndarray or None)=None, apply_saturation=False):
         """
         Update the joint states of the robot. The joint position, velocity, acceleration and torque are all optional.
 
-        Arg:
+        Args:
             q:                  joint position array (optional)
             dq:                 joint velocity array (optional)
             ddq:                joint acceleration array (optional)
@@ -450,7 +462,7 @@ class RobotWrapper:
         """
         Clip the joint position q, according to the limits specified in the robot model
 
-        Arg:
+        Args:
             q:                  joint position array (optional)
             update_joint_data:  boolean to update this class self.q with the clipping (default value is False)
         """
@@ -465,7 +477,7 @@ class RobotWrapper:
         """
         Clip the joint velocity dq, according to the limits specified in the robot model
 
-        Arg:
+        Args:
             dq:                  joint velocity array (optional)
             update_joint_data:   boolean to update this class self.dq with the clipping (default value is False)
         """
@@ -480,7 +492,7 @@ class RobotWrapper:
         """
         Clip the joint acceleration ddq, according to the limits specified by the user. If no limits were specified, this function will fail.
 
-        Arg:
+        Args:
             ddq:                 joint acceleration array (optional)
             update_joint_data:   boolean to update this class self.ddq with the clipping (default value is False)
         """
@@ -495,7 +507,7 @@ class RobotWrapper:
         """
         Clip the joint jerk dddq, according to the limits specified by the user. If no limits were specified, this function will fail.
 
-        Arg:
+        Args:
             dddq:                joint jerk array (optional)
             update_joint_data:   boolean to update this class self.dddq with the clipping (default value is False)
         """
@@ -510,7 +522,7 @@ class RobotWrapper:
         """
         Clip the joint torque tau, according to the limits specified in the robot model.
 
-        Arg:
+        Args:
             tau:                 joint torque array (optional)
             update_joint_data:   boolean to update this class self.tau with the clipping (default value is False)
         """
@@ -521,11 +533,17 @@ class RobotWrapper:
             self.tau = tau
         return tau
 
+    def open_viewer(self):
+        """
+        Open the web visualiser.
+        """
+        self.viz.viewer.open()
+
     def update_visualisation(self, q:(np.ndarray[float] or None)=None) -> None:
         """
         Update the joint state in the 3D meshcat visualiser
 
-        Arg:
+        Args:
             q:        joint position array
 
         """
@@ -537,7 +555,7 @@ class RobotWrapper:
         """
         Add a 3D object from a dae, obj or stl file. If the name already exists, it updates the object state.
 
-        Arg:
+        Args:
             obj_file_path:      file path of the 3D object (string)
             name_id:            reference identifier for the object (string)
             material:           meshcat.geometry material defining color, texture and opacity of the object

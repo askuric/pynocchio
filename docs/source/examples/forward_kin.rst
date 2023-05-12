@@ -1,32 +1,23 @@
 Forward and inverse kinematics calculation
 =====================================================
 
-This code loads a robot model from a URDF file and computes the forward kinematics of the end effector for a zero joint configuration, and then prints the resulting transformation matrix.
+This code loads a robot model from a URDF file and computes the forward kinematics of the end effector for a random joint configuration.
 
 
 .. code-block:: python
 
-
     import numpy as np
-    from pynocchio import RobotWrapper
+    import os
+
+    import pynocchio as pynoc
 
     # Define the path to the URDF file
-    robot_path = '/path/to/robot.urdf'
-
+    urdf_path = os.path.dirname(os.path.abspath(pynoc.__file__)) + "/models/urdf/panda.urdf"
     # Create the RobotWrapper object
-    robot = RobotWrapper(robot_path=robot_path)
-
+    panda = pynoc.RobotWrapper("panda_link8", urdf_path)
     # Define the current robot configuration
-    q = np.zeros(robot.n)
-
+    q0 = np.random.uniform(panda.q_min,panda.q_max)
     # Calculate the forward kinematics for the end effector
-    oMf = robot.forward(q)
-
-    # Print the resulting transformation matrix
-    print(oMf) 
-
+    oMq0 = panda.forward(q0)
     # Calculate the inverse kinematics for the end effector
-    q_ik = robot.ik(oMf)
-
-    # Print the resulting joint configuration
-    print(q_ik) 
+    q_ik = panda.ik(oMq0, verbose=False)

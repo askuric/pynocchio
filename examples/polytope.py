@@ -25,6 +25,11 @@ print("initial q\n", q)
 # calculate the polytope
 opt = {'calculate_faces':True}
 
+# polytope material
+mat_poly = g.MeshBasicMaterial(color=0x0022ff, wireframe=True, linewidth=3, opacity=0.2)
+# ellipsoid material
+mat_ellipse = g.MeshBasicMaterial(color=0xff5500, transparent=True, opacity=0.2)
+
 while True:
     # some sinusoidal motion
     for i in np.sin(np.linspace(-np.pi,np.pi,200)):
@@ -48,7 +53,7 @@ while True:
         poly = g.TriangularMeshGeometry(vertices=vel_poly.vertices.T/5 + panda.forward().translation, faces=vel_poly.face_indices)
         panda.add_geometry(object=poly,
                            name_id='poly', 
-                           material=g.MeshBasicMaterial(color=0xff0000, wireframe=True, linewidth=3, opacity=0.2))
+                           material=mat_poly)
 
 
         # calculate the ellipsoid
@@ -57,7 +62,7 @@ while True:
         ellipsoid = g.Ellipsoid(radii=vel_ellipsoid.radii/5)
         panda.add_geometry(object=ellipsoid, 
                            name_id='ellipse', 
-                           material=g.MeshBasicMaterial(color=0x0000ff, transparent=True, opacity=0.2) ,
+                           material= mat_ellipse,
                            transform=pin.SE3(vel_ellipsoid.rotation, panda.forward().translation))
  
         # wait a bit

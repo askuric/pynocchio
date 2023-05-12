@@ -10,8 +10,10 @@ It then calculates the mass matrix, Coriolis matrix, gravity vector, and the tim
     import pinocchio as pin
     from pynocchio import RobotWrapper
 
+    # Define the path to the URDF file
+    robot_path = '/path/to/robot.urdf'
     # Create a wrapper object for the Panda robot
-    panda = RobotWrapper("panda_link8", "panda.urdf")
+    panda = RobotWrapper("panda_link8", urdf_path=robot_path)
 
     # Generate random initial joint position and velocity
     q0 = np.random.uniform(panda.q_min, panda.q_max)
@@ -36,3 +38,9 @@ It then calculates the mass matrix, Coriolis matrix, gravity vector, and the tim
     # Compute the time derivative of the Jacobian of the robot at the given joint position and velocity
     Jdot = panda.jacobian_dot(q0, dq0)
     print("Jacobian time derivative: \n", Jdot)
+
+    # Generate random torque command
+    tau = np.random.uniform(panda.tau_min, panda.tau_max)
+
+    # Compute the direct dynamic of the robot at the given joint configuration for a torque command tau, and no external forces
+    ddq = panda.direct_dynamic(tau, q0, dq0)

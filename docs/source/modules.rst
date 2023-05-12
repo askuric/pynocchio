@@ -5,3 +5,4 @@ pynocchio package
    :titlesonly:
 
    robotwrapper
+   frictionrobotwrapper

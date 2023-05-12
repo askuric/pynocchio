@@ -1,7 +1,7 @@
 Example of loading the robot model using ROS
 ============================================
 
-
+Using ``pynocchio`` is easy with ROS as well. You can easily instantiate the ``RosWrapper`` with ``robot_description`` parameter.
 
 .. code-block:: python
     
@@ -23,8 +23,7 @@ Example of loading the robot model using ROS
 
 
 
-
-Ros node code could be something like this
+A ROS node code could be something like this:
 
 .. code-block:: python
 
@@ -48,10 +47,10 @@ Ros node code could be something like this
         rospy.init_node('calculate_jacobian', anonymous=True)
 
         # create a subscriber to the joint states 
-        rospy.Subscriber('panda/joint_states', JointState, callback, queue_size= 2)
+        rospy.Subscriber('joint_states', JointState, callback, queue_size= 2)
 
         # loading the root urdf from robot_description parameter
-        robot = RobotWrapper(xml_path=rospy.get_param("panda/robot_description"))
+        robot = RobotWrapper(xml_path=rospy.get_param("robot_description"))
 
         rate = rospy.Rate(100) # 10hz
         while not rospy.is_shutdown():

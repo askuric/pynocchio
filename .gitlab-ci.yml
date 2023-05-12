@@ -6,7 +6,7 @@ pages:
   - ci.inria.fr
   script:
 # install pinocchio
-  - conda env create -f env.yaml
+  # - conda env create -f env.yaml
   - conda init bash
   - conda activate pynocchio
 # generate the site
@@ -35,7 +35,7 @@ tests:
   - ci.inria.fr
   script:
 # install pinocchio
-  - conda env create -f env.yaml
+  # - conda env create -f env.yaml
   - conda init bash
   - conda activate pynocchio
 # run tests

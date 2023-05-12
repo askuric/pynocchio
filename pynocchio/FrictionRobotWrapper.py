@@ -12,7 +12,7 @@ class FrictionRobotWrapper(RobotWrapper):
     :ivar np.ndarray c: An array containing the Coulomb friction gain.
     :ivar np.ndarray  0: An array containing the Coulomb friction offset gain.
     """
-    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray or None)=None, fv:(np.ndarray or None)=None, fc:(np.ndarray or None)=None, f0:(np.ndarray or None)=None,  robot_wrapper=None):
+    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray or None)=None, fv:(np.ndarray or None)=None, fc:(np.ndarray or None)=None, f0:(np.ndarray or None)=None,  robot_wrapper:(pin.RobotWrapper or None)=None):
         """
         
         """

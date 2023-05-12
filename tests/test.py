@@ -8,12 +8,12 @@ from pynocchio import RobotWrapper
 #write a test loading a robot and checking the number of joints
 def test_load_robot():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    assert panda.robot.nq == 7
+    assert panda.model.nq == 7
 
 # check the meshes file loading
 def test_load_visual_with_initial_pose():
     panda_dummy = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q0 = pin.randomConfiguration(panda_dummy.robot)
+    q0 = pin.randomConfiguration(panda_dummy.model)
     try:
         panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf", mesh_path="pynocchio/models", q=q0)
     except:
@@ -33,7 +33,7 @@ def test_load_robot_exception():
 # write a test checking the forward kinematics and inverse kinematics
 def test_forward_kinematics():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q0 = pin.randomConfiguration(panda.robot)
+    q0 = pin.randomConfiguration(panda.model)
     oMf = panda.forward(q0)
     # inverse kinematics
     q = panda.ik(oMf, q0)
@@ -49,7 +49,7 @@ def test_default_tip():
 # test dk position and orientation matrix against forward
 def test_dk_position():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = np.zeros(panda.robot.nq)
+    q = np.zeros(panda.model.nq)
     oMf = panda.forward(q)
     trans = panda.dk_position(q)
     R = panda.dk_orientation_matrix(q)
@@ -75,7 +75,7 @@ def test_ik_iterations_limit():
 # write a test checking the jacobian
 def test_jacobian():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = np.zeros(panda.robot.nq)
+    q = np.zeros(panda.model.nq)
     J = panda.jacobian(q)
     J_cmp = np.array([[ 0.,    0.59, -0.,   -0.28 , 0.  ,  0.11,  0.  ],
                     [ 0.09,  0.   , 0.09,  0.  ,  0.09,  0.  ,  0.  ],
@@ -88,7 +88,7 @@ def test_jacobian():
 # check that jacobian postion is good
 def test_jacobian_position():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = np.zeros(panda.robot.nq)
+    q = np.zeros(panda.model.nq)
     J = panda.jacobian(q)
     J_pos = panda.jacobian_position(q)
     assert np.allclose(J[:3,:], J_pos, atol=1e-2)
@@ -96,7 +96,7 @@ def test_jacobian_position():
 # check the jacobian pseudo inverse against numpy
 def test_jacobian_pseudo_inverse():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = np.zeros(panda.robot.nq)
+    q = np.zeros(panda.model.nq)
     J = panda.jacobian(q)
     J_pinv = panda.jacobian_pseudo_inv(q)
     J_pinv_cmp = np.linalg.pinv(J)
@@ -105,16 +105,16 @@ def test_jacobian_pseudo_inverse():
 # check the jacobian weighted pseudo inverse with identity weight against jacobian pseudo inverse
 def test_jacobian_weighted_pseudo_inverse():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = pin.randomConfiguration(panda.robot) # TODO: singular configuration should be avoided.
-    J_Wpinv = panda.jacobian_weighted_pseudo_inv(np.eye(panda.robot.nq), q)
+    q = pin.randomConfiguration(panda.model) # TODO: singular configuration should be avoided.
+    J_Wpinv = panda.jacobian_weighted_pseudo_inv(np.eye(panda.model.nq), q)
     J_pinv_cmp = panda.jacobian_pseudo_inv(q)
     assert np.allclose(J_Wpinv, J_pinv_cmp, atol=1e-2)
 
 #test jacobian dot
 def test_jacobian_dot():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = np.zeros(panda.robot.nq)
-    qd = np.ones(panda.robot.nv)
+    q = np.zeros(panda.model.nq)
+    qd = np.ones(panda.model.nv)
     J_dot = panda.jacobian_dot(q, qd)
     J_dot_com = np.array([
         [[ 0.,   0. ,   0. ,  -0.08, -0.,   -0.08, -0.26],
@@ -130,7 +130,7 @@ def test_jacobian_dot():
 # write a test checking the mass matrix
 def test_mass_matrix():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = np.zeros(panda.robot.nq)
+    q = np.zeros(panda.model.nq)
     M = panda.mass_matrix(q)
     # M_comp = np.array(
     #     [[ 0.16, -0.06 , 0.12,  0.02,  0.08,  0. ,  -0.05],
@@ -156,15 +156,15 @@ def test_mass_matrix():
 # write a test checking the coriolis matrix
 def test_coriolis_matrix():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = np.zeros(panda.robot.nq)
-    qd = np.zeros(panda.robot.nv)
+    q = np.zeros(panda.model.nq)
+    qd = np.zeros(panda.model.nv)
     C = panda.coriolis_matrix(q, qd)
     assert True
 
 # write a test checking the gravity vector
 def test_gravity_vector():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = np.zeros(panda.robot.nq)
+    q = np.zeros(panda.model.nq)
     g = panda.gravity_torque(q)
     g_cmp = np.array([ 0. ,  -3.43, -0. ,  -3.26,  0. ,   1.69,  0.  ])
     assert np.allclose(g, g_cmp, atol=1e-2)
@@ -172,21 +172,21 @@ def test_gravity_vector():
 # test direct dynamics method against aba method from pinocchio
 def test_direct_dynamics():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = np.zeros(panda.robot.nq)
-    dq = np.zeros(panda.robot.nq)
-    tau = np.zeros(panda.robot.nq)
-    ddq = panda.direct_dynamic(tau=tau, q=q, dq=dq)
-    ddq_aba = pin.aba(panda.robot, panda.data, q, dq, tau)
+    q = np.zeros(panda.model.nq)
+    dq = np.zeros(panda.model.nq)
+    tau = np.zeros(panda.model.nq)
+    ddq = panda.direct_dynamics(tau=tau, q=q, dq=dq)
+    ddq_aba = pin.aba(panda.model, panda.data, q, dq, tau)
     assert np.allclose(ddq, ddq_aba, atol=1e-2)
 
 # test direct dynamics method with gravity torque as input
 def test_direct_dynamics_gravity_compensation():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
-    q = np.zeros(panda.robot.nq)
-    dq = np.zeros(panda.robot.nq)
+    q = np.zeros(panda.model.nq)
+    dq = np.zeros(panda.model.nq)
     tau = panda.gravity_torque(q)
-    ddq = panda.direct_dynamic(tau=tau, q=q, dq=dq)
-    assert np.allclose(ddq, np.zeros(panda.robot.nq))
+    ddq = panda.direct_dynamics(tau=tau, q=q, dq=dq)
+    assert np.allclose(ddq, np.zeros(panda.model.nq))
 
 # test joint update
 def test_joint_data_update():

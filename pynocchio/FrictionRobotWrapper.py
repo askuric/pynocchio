@@ -2,6 +2,7 @@
 import numpy as np
 
 from pynocchio import RobotWrapper
+import pinochcio as pin
 
 class FrictionRobotWrapper(RobotWrapper):
     """
@@ -11,11 +12,11 @@ class FrictionRobotWrapper(RobotWrapper):
     :ivar np.ndarray c: An array containing the Coulomb friction gain.
     :ivar np.ndarray  0: An array containing the Coulomb friction offset gain.
     """
-    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray or None)=None, fv:(np.ndarray or None)=None, fc:(np.ndarray or None)=None, f0:(np.ndarray or None)=None):
+    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray or None)=None, fv:(np.ndarray or None)=None, fc:(np.ndarray or None)=None, f0:(np.ndarray or None)=None,  robot_wrapper:(pin.RobotWrapper or None)=None):
         """
         
         """
-        super().__init__(tip, urdf_path, xml_path, mesh_path, q)
+        super().__init__(tip, urdf_path, xml_path, mesh_path, robot_wrapper=robot_wrapper, q=q)
 
         if fv is not None:
             self.set_viscous_friction_gains(fv)

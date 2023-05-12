@@ -6,28 +6,29 @@ import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
 import meshcat
 
+import time
+
 class RobotWrapper:
     """
     Class wrapper to use pinocchio robot model and with simplified use for various kinematic and dynamic functions.
 
-    Attributes:
-        robot (pin.RobotModel): The pinocchio RobotModel object representing the robot.
-        collision_model (pin.CollisionModel): The pinocchio CollisionModel object representing the robot's collision model.
-        visual_model (pin.VisualModel): The pinocchio VisualModel object representing the robot's visual model.
-        tip_link (str): The name of the robot's end-effector frame.
-        tip_id (int): The ID of the robot's end-effector frame.
-        tau_max (np.ndarray): An array of the maximum joint torques.
-        tau_min (np.ndarray): An array of the minimum joint torques.
-        dq_max (np.ndarray): An array of the maximum joint velocities.
-        dq_min (np.ndarray): An array of the minimum joint velocities.
-        q_max (np.ndarray): An array of the maximum joint angles.
-        q_min (np.ndarray): An array of the minimum joint angles.
-        data (pin.Data): The pinocchio Data object for storing intermediate computation results.
-        q (np.ndarray): An array containing the current joint positions of the robot.
-        dq (np.ndarray): An array containing the current joint velocities of the robot.
-        ddq (np.ndarray): An array containing the current joint accelerations of the robot.
-        tau (np.ndarray): An array containing the current joint torques of the robot.
-        viz (MeshcatVisualizer): The MeshcatVisualizer object for visualizing the robot.
+    :ivar pin.RobotModel model: The pinocchio RobotModel object representing the robot.
+    :ivar pin.CollisionModel collision_model: The pinocchio CollisionModel object representing the robot's collision model.
+    :ivar pin.VisualModel visual_model: The pinocchio VisualModel object representing the robot's visual model.
+    :ivar str tip_link: The name of the robot's end-effector frame.
+    :ivar int tip_id: The ID of the robot's end-effector frame.
+    :ivar np.ndarray tau_max: An array of the maximum joint torques.
+    :ivar np.ndarray tau_min: An array of the minimum joint torques.
+    :ivar np.ndarray dq_max: An array of the maximum joint velocities.
+    :ivar np.ndarray dq_min: An array of the minimum joint velocities.
+    :ivar np.ndarray q_max: An array of the maximum joint angles.
+    :ivar np.ndarray q_min: An array of the minimum joint angles.
+    :ivar pin.Data data: The pinocchio Data object for storing intermediate computation results.
+    :ivar np.ndarray q: An array containing the current joint positions of the robot.
+    :ivar np.ndarray dq: An array containing the current joint velocities of the robot.
+    :ivar np.ndarray ddq: An array containing the current joint accelerations of the robot.
+    :ivar np.ndarray tau: An array containing the current joint torques of the robot.
+    :ivar MeshcatVisualizer viz: The MeshcatVisualizer object for visualizing the robot.
     """
     def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray[float] or None)=None):
 
@@ -35,63 +36,67 @@ class RobotWrapper:
         RobotWrapper constructor
 
         Args:
-            tip:        robot end-effector frame name
-            urdf_path:  Path to the robot's URDF file (optional) 
-            xml_path:   Path to the robot's XML file (optional)
+            tip:        robot end-effector frame name (optional if not specified, the last frame is used)
+            urdf_path:  Path to the robot's URDF file (optional, but either urdf_path or xml_path must be specified)
+            xml_path:   Path to the robot's XML file (optional, but either urdf_path or xml_path must be specified)
             mesh_path:  Path to the robot's meshes folder for visualization (optional)
             q:          An array containing the robot intial joint position (optional)
+
+        :raises ValueError: If neither urdf_path nor xml_path is specified.
+
         """
         if mesh_path:
             if urdf_path:
-                self.robot, self.collision_model, self.visual_model = pin.buildModelsFromUrdf(urdf_path, mesh_path)
+                self.model, self.collision_model, self.visual_model = pin.buildModelsFromUrdf(urdf_path, mesh_path)
             elif xml_path:
-                self.robot, self.collision_model, self.visual_model = pin.buildModelsFromXML(xml_path, mesh_path)
+                self.model, self.collision_model, self.visual_model = pin.buildModelsFromXML(xml_path, mesh_path)
             else: 
                 raise ValueError("ERROR: no urdf or xml specified for the robot!")
         
         else:
             if urdf_path:
-                self.robot = pin.buildModelFromUrdf(urdf_path)
+                self.model = pin.buildModelFromUrdf(urdf_path)
             elif xml_path:
-                self.robot = pin.buildModelFromXML(xml_path)
+                self.model = pin.buildModelFromXML(xml_path)
             else: 
                 raise ValueError("ERROR: no urdf or xml specified for the robot!")
 
         if tip is None:
-            tip = self.robot.frames[-1].name
+            tip = self.model.frames[-1].name
             print('No tip specified, using the last frame: ', tip)
 
         self.tip_link = tip
-        self.tip_id = self.robot.getFrameId(tip)
+        self.tip_id = self.model.getFrameId(tip)
 
         # maximal torques
-        self.tau_max = self.robot.effortLimit.T
+        self.tau_max = self.model.effortLimit.T
         self.tau_min = -self.tau_max
         # maximal joint velocities
-        self.dq_max = self.robot.velocityLimit.T
+        self.dq_max = self.model.velocityLimit.T
         self.dq_min = -self.dq_max
         # maximal joint angles
-        self.q_max = self.robot.upperPositionLimit.T
-        self.q_min = self.robot.lowerPositionLimit.T
+        self.q_max = self.model.upperPositionLimit.T
+        self.q_min = self.model.lowerPositionLimit.T
 
-        self.n = self.robot.nq
-
-        self.data = self.robot.createData()
+        # number of joints
+        self.n = self.model.nq
+        # pinocchio data
+        self.data = self.model.createData()
 
         # robot state
         if q is not None:
             self.q = q # joint position
-        self.dq = np.zeros((self.robot.nq)) # joint velocity
-        self.ddq = np.zeros((self.robot.nq)) # joint acceleration
-        self.tau = np.zeros((self.robot.nq)) # joint torque
+        self.dq = np.zeros((self.model.nq)) # joint velocity
+        self.ddq = np.zeros((self.model.nq)) # joint acceleration
+        self.tau = np.zeros((self.model.nq)) # joint torque
 
-        if mesh_path:
-            self.viz = MeshcatVisualizer(self.robot, self.collision_model, self.visual_model)
+        if mesh_path is not None:
+            self.viz = MeshcatVisualizer(self.model, self.collision_model, self.visual_model)
             self.viz.initViewer(open=True)
             self.viz.loadViewerModel("pinocchio")
             if q is not None:
                 self.update_visualisation()
-
+            time.sleep(0.2) # small time window for loading the model
     def forward(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None) -> pin.SE3:
         """
         Forward kinematics calculating function
@@ -107,13 +112,13 @@ class RobotWrapper:
         """
         
         if frame_name is not None:
-            frame_id = self.robot.getFrameId(frame_name)
+            frame_id = self.model.getFrameId(frame_name)
         else:
             frame_id = self.tip_id
         if q is None:
-            pin.framesForwardKinematics(self.robot,self.data, self.q)
+            pin.framesForwardKinematics(self.model,self.data, self.q)
         else:
-            pin.framesForwardKinematics(self.robot,self.data, np.array(q))
+            pin.framesForwardKinematics(self.model,self.data, np.array(q))
         return self.data.oMf[frame_id]
        
     def dk_position(self, q:(np.ndarray[float] or None)=None, frame_name:(str or None)=None) -> np.ndarray[float]: 
@@ -159,14 +164,14 @@ class RobotWrapper:
         """
         
         if frame_name is not None:
-            frame_id = self.robot.getFrameId(frame_name)
+            frame_id = self.model.getFrameId(frame_name)
         else:
             frame_id = self.tip_id
         if q is None:
             q = self.q          
 
-        pin.computeJointJacobians(self.robot,self.data, np.array(q))
-        Jac = pin.getFrameJacobian(self.robot, self.data, frame_id, frame_align)
+        pin.computeJointJacobians(self.model,self.data, np.array(q))
+        Jac = pin.getFrameJacobian(self.model, self.data, frame_id, frame_align)
 
         return np.array(Jac)
     
@@ -186,7 +191,7 @@ class RobotWrapper:
         """
         
         if frame_name is not None:
-            frame_id = self.robot.getFrameId(frame_name)
+            frame_id = self.model.getFrameId(frame_name)
         else:
             frame_id = self.tip_id
         if q is None:
@@ -194,8 +199,8 @@ class RobotWrapper:
         if dq is None:
             dq = self.dq
 
-        pin.computeJointJacobiansTimeVariation(self.robot, self.data,np.array(q), np.array(dq))        
-        Jdot = pin.getFrameJacobianTimeVariation(self.robot, self.data, frame_id, frame_align)
+        pin.computeJointJacobiansTimeVariation(self.model, self.data,np.array(q), np.array(dq))        
+        Jdot = pin.getFrameJacobianTimeVariation(self.model, self.data, frame_id, frame_align)
 
         return np.array(Jdot)
 
@@ -265,7 +270,7 @@ class RobotWrapper:
         """
         if q is None:
             q = self.q
-        pin.computeGeneralizedGravity(self.robot,self.data, np.array(q))
+        pin.computeGeneralizedGravity(self.model,self.data, np.array(q))
         return np.array(self.data.g)
 
     def mass_matrix(self, q:(np.ndarray[float] or None)=None) -> np.ndarray[np.ndarray[float]]:
@@ -281,7 +286,7 @@ class RobotWrapper:
         """
         if q is None:
             q = self.q
-        pin.crba(self.robot,self.data,np.array(q))
+        pin.crba(self.model,self.data,np.array(q))
         return np.array(self.data.M)
 
     def coriolis_matrix(self, q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None) -> np.ndarray[np.ndarray[float]]:
@@ -301,7 +306,7 @@ class RobotWrapper:
         if dq is None:
             dq = self.dq
 
-        pin.computeCoriolisMatrix(self.robot,self.data,np.array(q),np.array(dq))
+        pin.computeCoriolisMatrix(self.model,self.data,np.array(q),np.array(dq))
         return np.array(self.data.C)
     
     def ik(self, oMdes:pin.SE3, q:(np.ndarray[float] or None)=None, verbose:bool=True) -> np.ndarray[float]:
@@ -318,10 +323,10 @@ class RobotWrapper:
         --------
             q_des: robot configuration corresponding to the desired pose 
         """
-        data_ik  = self.robot.createData()
+        data_ik  = self.model.createData()
 
         if q is None:
-            q = pin.neutral(self.robot)
+            q = pin.neutral(self.model)
         
         # ik parameters
         eps    = 1e-4
@@ -331,7 +336,7 @@ class RobotWrapper:
 
         i=0
         while True:
-            pin.framesForwardKinematics(self.robot,data_ik,q)
+            pin.framesForwardKinematics(self.model,data_ik,q)
             dMi = oMdes.actInv(data_ik.oMf[self.tip_id])
             err = pin.log(dMi).vector
             if np.linalg.norm(err) < eps:
@@ -340,9 +345,9 @@ class RobotWrapper:
             if i >= IT_MAX:
                 success = False
                 break
-            J = pin.computeFrameJacobian(self.robot,data_ik,q,self.tip_id)
+            J = pin.computeFrameJacobian(self.model,data_ik,q,self.tip_id)
             v = - J.T.dot(np.linalg.solve(J.dot(J.T) + damp * np.eye(6), err))
-            q = pin.integrate(self.robot,q,v*DT)
+            q = pin.integrate(self.model,q,v*DT)
             if not i % 10 and verbose:
                 print('%d: error = %s' % (i, err.T))
             i += 1
@@ -355,7 +360,7 @@ class RobotWrapper:
         
         return np.array(q)
     
-    def direct_dynamic(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, f_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
+    def direct_dynamics(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, f_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
         """
         Direct dynamic model
 
@@ -378,14 +383,14 @@ class RobotWrapper:
         C = self.coriolis_matrix(q, dq)
         g = self.gravity_torque(q)
         if f_ext is None:
-            tau_ext = np.zeros((self.robot.nq))
+            tau_ext = np.zeros((self.model.nq))
         else:
             tau_ext = J.T.dot(f_ext) # TODO: the user should provide tau_ext directly so that f_ext can be forces exerted on any part of the body
 
         ddq = np.linalg.inv(A).dot(tau - tau_ext - C.dot(dq) - g)
         return np.array(ddq)
 
-    def direct_dynamic_aba(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, tau_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
+    def direct_dynamics_aba(self, tau:np.ndarray[float], q:(np.ndarray[float] or None)=None, dq:(np.ndarray[float] or None)=None, tau_ext:(np.ndarray[float] or None)=None) -> np.ndarray[float]:
         """
         Direct dynamic model using ABA's method (R. Featherstone 1983), with the implementation described in Analytical Derivatives
         of Rigid Body Dynamics Algorithms, by Justin Carpentier and Nicolas Mansard (http://www.roboticsproceedings.org/rss14/p38.pdf)
@@ -395,6 +400,7 @@ class RobotWrapper:
             q:        joint position array (optional)
             dq:       joint velocity array (optional)
             tau_ext:  external force array (in the local frame) f(rob->env)
+
         Returns
         --------
             ddq:      n array of the joint acceleration
@@ -404,10 +410,10 @@ class RobotWrapper:
         if dq is None:
             dq = self.dq
         if tau_ext is None:
-            tau_ext = np.zeros(self.robot.nq)
+            tau_ext = np.zeros(self.model.nq)
 
-        #ddq = pin.aba(model=self.robot, data=self.data, q=q, v=dq, tau=tau, fext=tau_ext)
-        ddq = pin.aba(self.robot, self.data, q, dq, tau, tau_ext)
+        #ddq = pin.aba(model=self.model, data=self.data, q=q, v=dq, tau=tau, fext=tau_ext)
+        ddq = pin.aba(self.model, self.data, q, dq, tau, tau_ext)
         return np.array(ddq)
  
     def update_joint_data(self, q:(np.ndarray or None)=None, dq:(np.ndarray or None)=None, ddq:(np.ndarray or None)=None, tau:(np.ndarray or None)=None, apply_saturation=False):
@@ -527,7 +533,7 @@ class RobotWrapper:
             q = self.q
         self.viz.display(q)
 
-    def add_visual_object(self, obj_file_path:str, name_id:str, material=None) -> None:
+    def add_visual_object_from_file(self, obj_file_path:str, name_id:str, material=None) -> None:
         """
         Add a 3D object from a dae, obj or stl file. If the name already exists, it updates the object state.
 
@@ -548,6 +554,26 @@ class RobotWrapper:
             raise ValueError("Unknown mesh file format: {}.".format(file_extension))
         
         if material is None:
-            material = meshcat.geometry.MeshPhongMaterial(color=0xff0000, opacity=0.4)
+            material = meshcat.geometry.MeshBasicMaterial(color=0xff0000, opacity=0.4)
 
         self.viz.viewer[name_id].set_object(obj, material)
+
+
+    def add_geometry(self, object:meshcat.geometry.Geometry, name_id:str, material=None, transform: pin.SE3 = None) -> None:
+        """
+        Add a 3D object from a dae, obj or stl file. If the name already exists, it updates the object state.
+
+        Arg:
+            obj_file_path:      file path of the 3D object (string)
+            name_id:            reference identifier for the object (string)
+            material:           meshcat.geometry material defining color, texture and opacity of the object
+
+        """
+
+        if material is None:
+            material = meshcat.geometry.MeshBasicMaterial(color=0xff0000, opacity=0.4)
+
+        self.viz.viewer[name_id].set_object(object, material)
+        if transform is not None:
+            self.viz.viewer[name_id].set_transform(transform.homogeneous)
+    

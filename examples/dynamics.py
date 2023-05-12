@@ -5,13 +5,10 @@ import pynocchio as pynoc
 
 dir_path = os.path.dirname(os.path.abspath(pynoc.__file__))
 
-panda = pynoc.RobotWrapper("panda_link8", dir_path+"/models/urdf/panda.urdf", mesh_path=dir_path+"/models")
+panda = pynoc.RobotWrapper("panda_link8", dir_path+"/models/urdf/panda.urdf")
 
 q0 = np.random.uniform(panda.q_min,panda.q_max)
 dq0 = np.random.uniform(panda.dq_min,panda.dq_max)
-
-panda.update_joint_data(q=q0, dq=dq0)
-panda.update_visualisation()
 
 print("initial q\n", q0)
 print("initial dq\n", dq0)

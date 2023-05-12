@@ -2,6 +2,7 @@ RobotWrapper module
 ============================
 
 .. automodule:: pynocchio.RobotWrapper
-    :members:
+    :members: 
     :undoc-members:
     :show-inheritance:
+    :special-members: __init__

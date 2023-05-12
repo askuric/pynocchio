@@ -8,6 +8,7 @@ pages:
 # install pinocchio
   # - conda env create -f env.yaml
   - conda init bash
+  - source ~/.bashrc    # <- !!!
   - conda activate pynocchio
 # generate the site
   - cd docs
@@ -37,6 +38,7 @@ tests:
 # install pinocchio
   # - conda env create -f env.yaml
   - conda init bash
+  - source ~/.bashrc    # <- !!!
   - conda activate pynocchio
 # run tests
   - pip install . 

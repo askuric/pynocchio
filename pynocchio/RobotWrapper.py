@@ -131,7 +131,7 @@ class RobotWrapper:
             pin.framesForwardKinematics(self.model,self.data, self.q)
         else:
             pin.framesForwardKinematics(self.model,self.data, np.array(q))
-        return self.data.oMf[frame_id]
+        return self.data.oMf[frame_id].copy()
        
     def dk_position(self, q:(np.ndarray or None)=None, frame_name:(str or None)=None) -> np.ndarray: 
         """

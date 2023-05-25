@@ -322,7 +322,7 @@ class RobotWrapper:
         pin.computeCoriolisMatrix(self.model,self.data,np.array(q),np.array(dq))
         return np.array(self.data.C)
     
-    def ik(self, oMdes:pin.SE3, q:(np.ndarray or None)=None, qlim:bool=True, verbose:bool=True) -> np.ndarray:
+    def ik(self, oMdes:pin.SE3, q:(np.ndarray or None)=None, qlim:bool=False, verbose:bool=True, iterations:int=1000, precision:float=1e-4, tries:int = 2) -> np.ndarray:
         """
         Iterative inverse kinematics based on the example code from
         https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html
@@ -339,40 +339,48 @@ class RobotWrapper:
         data_ik  = self.model.createData()
 
         if q is None:
-            q = pin.neutral(self.model)
-        
+            q = (self.q_min+self.q_max)/2
+
         # ik parameters
-        eps    = 1e-4
-        IT_MAX = 1000
+        eps    = precision
+        IT_MAX = iterations
         DT     = 1e-1
         damp   = 1e-12
 
-        i=0
-        while True:
-            pin.framesForwardKinematics(self.model,data_ik,q)
-            dMi = oMdes.actInv(data_ik.oMf[self.tip_id])
-            err = pin.log(dMi).vector
-            if np.linalg.norm(err) < eps:
-                success = True
-                break
-            if i >= IT_MAX:
-                success = False
-                break
-            J = pin.computeFrameJacobian(self.model,data_ik,q,self.tip_id)
-            v = - J.T.dot(np.linalg.solve(J.dot(J.T) + damp * np.eye(6), err))
-            q = pin.integrate(self.model,q,v*DT)
-            if qlim == True:
-                q = self.apply_joint_position_limits(q)
-            if not i % 10 and verbose:
-                print('%d: error = %s' % (i, err.T))
-            i += 1
+        for t in range(tries):
 
-        if verbose:
-            if success:
-                print("Convergence achieved!")
-            else :
-                print("\nWarning: the iterative algorithm has not reached convergence to the desired precision")
-        
+            if verbose:
+                print("Try: %d" % t)
+
+            if t> 0:
+                q = np.random.uniform(self.q_min, self.q_max)
+            i=0
+            while True:
+                pin.framesForwardKinematics(self.model,data_ik,q)
+                dMi = oMdes.actInv(data_ik.oMf[self.tip_id])
+                err = pin.log(dMi).vector
+                if np.linalg.norm(err) < eps:
+                    success = True
+                    break
+                if i >= IT_MAX:
+                    success = False
+                    break
+                J = pin.computeFrameJacobian(self.model,data_ik,q,self.tip_id)
+                v = - J.T.dot(np.linalg.solve(J.dot(J.T) + damp * np.eye(6), err))
+                q = pin.integrate(self.model,q,v*DT)
+                if qlim == True:
+                    q = self.apply_joint_position_limits(q)
+                if not i % 10 and verbose:
+                    print('%d: error = %s' % (i, err.T))
+                i += 1
+
+            if verbose:
+                if success:
+                    print("Convergence achieved!")
+                    break  
+                else: # if convergence is not achieved and no initial guess is provided, try again with a random guess
+                    print(f"\nWarning: the iterative algorithm has not reached convergence to the desired precision, for the try number {t}/{tries}")
+
         return np.array(q)
     
     def direct_dynamics(self, tau:np.ndarray, q:(np.ndarray or None)=None, dq:(np.ndarray or None)=None, f_ext:(np.ndarray or None)=None) -> np.ndarray:

@@ -322,7 +322,7 @@ class RobotWrapper:
         pin.computeCoriolisMatrix(self.model,self.data,np.array(q),np.array(dq))
         return np.array(self.data.C)
     
-    def ik(self, oMdes:pin.SE3, q:(np.ndarray or None)=None, verbose:bool=True) -> np.ndarray:
+    def ik(self, oMdes:pin.SE3, q:(np.ndarray or None)=None, qlim:bool=True, verbose:bool=True) -> np.ndarray:
         """
         Iterative inverse kinematics based on the example code from
         https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html
@@ -361,6 +361,8 @@ class RobotWrapper:
             J = pin.computeFrameJacobian(self.model,data_ik,q,self.tip_id)
             v = - J.T.dot(np.linalg.solve(J.dot(J.T) + damp * np.eye(6), err))
             q = pin.integrate(self.model,q,v*DT)
+            if qlim == True:
+                q = self.apply_joint_position_limits(q)
             if not i % 10 and verbose:
                 print('%d: error = %s' % (i, err.T))
             i += 1

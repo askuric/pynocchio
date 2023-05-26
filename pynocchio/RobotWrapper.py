@@ -324,9 +324,17 @@ class RobotWrapper:
     
     def ik(self, oMdes:pin.SE3, q:(np.ndarray or None)=None, qlim:bool=False, verbose:bool=True, iterations:int=1000, precision:float=1e-4, tries:int = 5) -> np.ndarray:
         """
-        Iterative inverse kinematics based on the example code from
+        Iterative inverse kinematics inspired by the pinocchio's example code 
         https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html
 
+        The code follows a simple strategy based on the Newton-Euler algorithm to solve the inverse kinematics problem (Jacobian pseudo-inverse method).
+
+        - The algorithm is initialized with the current configuration of the robot (specified in the parameters ``q``) 
+        - Iterates until the desired pose is reached (the difference between the current and desired pose is smaller than the specified ``precision``).
+        - If the algorithm fails to converge, it is reinitialized with a random configuration and tries again (maximum number of ``tries`` can be specified - default 5). 
+            - If the algorithm fails to converge after the specified number of tries, it returns the last configuration it reached.
+        - The algorithm can be instructed to respect the robot's joint limits by setting the ``qlim`` parameter to True (default False).
+        
         Args:
             oMdes: SE3 matrix expressed in the world frame of the robot's end-effector desired pose    
             q: currrent robot configuration (default robot's neutral position)

@@ -72,17 +72,26 @@ def test_inverse_kinematics_joint_saturation():
     
     oMf = pin.SE3(np.array([[-1,0,0],[0,-1/np.sqrt(2),1/np.sqrt(2)],[0,1/np.sqrt(2),1/np.sqrt(2)]]), np.array([0.2,0.185,0.47]))
 
-    q = panda.ik(oMf, qlim=False, verbose=False)
     q_sat = panda.ik(oMf, qlim=True, verbose=True, tries=5)
+
+    oMf_ik_sat = panda.forward(q_sat)
+    
+    assert np.allclose(oMf, oMf_ik_sat, atol=1e-2) 
+
+# write a test checking the forward kinematics and inverse kinematics
+def test_inverse_kinematics_joint_no_saturation():
+    panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
+    
+    oMf = pin.SE3(np.array([[-1,0,0],[0, -1/np.sqrt(2), 1/np.sqrt(2)],[0, 1/np.sqrt(2), 1/np.sqrt(2)]]), np.array([0.2, 0.185, 0.47]))
+
+    q = panda.ik(oMf, q=(panda.q_min+panda.q_max)/2, qlim=False, verbose=False, tries=1)
 
     if not (np.all(panda.q_min < q) and np.all(q < panda.q_max)):
         q_without_saturation_out_of_bounds = True
     else:
         q_without_saturation_out_of_bounds = False
 
-    oMf_ik_sat = panda.forward(q_sat)
-    
-    assert np.allclose(oMf, oMf_ik_sat, atol=1e-2) and q_without_saturation_out_of_bounds
+    assert q_without_saturation_out_of_bounds
 
 # check iterations for ik
 def test_ik_iterations_limit():

@@ -322,16 +322,19 @@ class RobotWrapper:
         pin.computeCoriolisMatrix(self.model,self.data,np.array(q),np.array(dq))
         return np.array(self.data.C)
     
-    def ik(self, oMdes:pin.SE3, q:(np.ndarray or None)=None, qlim:bool=False, verbose:bool=True, iterations:int=1000, precision:float=1e-4, tries:int = 2) -> np.ndarray:
+    def ik(self, oMdes:pin.SE3, q:(np.ndarray or None)=None, qlim:bool=False, verbose:bool=True, iterations:int=1000, precision:float=1e-4, tries:int = 5) -> np.ndarray:
         """
         Iterative inverse kinematics based on the example code from
         https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html
 
         Args:
-            oMdes: SE3 matrix expressed in the world frame of the robot's endefector desired pose    
+            oMdes: SE3 matrix expressed in the world frame of the robot's end-effector desired pose    
             q: currrent robot configuration (default robot's neutral position)
-            verbose: bool variable enabling verbose ouptut (default True)
-
+            verbose: bool variable enabling verbose output (default True)
+            iterations: maximum number of iterations (default 1000)
+            precision: desired precision (default 1e-4)
+            tries: number of random initializations to try if the first one fails (default 5)
+            
         Returns
         --------
             q_des: robot configuration corresponding to the desired pose 
@@ -379,7 +382,10 @@ class RobotWrapper:
                     print("Convergence achieved!")
                     break  
                 else: # if convergence is not achieved and no initial guess is provided, try again with a random guess
-                    print(f"\nWarning: the iterative algorithm has not reached convergence to the desired precision, for the try number {t}/{tries}")
+                    print(f"Warning: the iterative algorithm has not reached convergence to the desired precision, for the try number {t}/{tries}")
+
+        if not success:
+            print(f"Warning: IK convergence not achieved after {tries} tries. The returned configuration is the last one obtained.")
 
         return np.array(q)
     

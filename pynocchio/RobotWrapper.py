@@ -329,11 +329,11 @@ class RobotWrapper:
 
         The code follows a simple strategy based on the Newton-Euler algorithm to solve the inverse kinematics problem (Jacobian pseudo-inverse method).
 
-        - The algorithm is initialized with the current configuration of the robot (specified in the parameters ``q``) 
-        - Iterates until the desired pose is reached (the difference between the current and desired pose is smaller than the specified ``precision``).
-        - If the algorithm fails to converge, it is reinitialized with a random configuration and tries again (maximum number of ``tries`` can be specified - default 5). 
-            - If the algorithm fails to converge after the specified number of tries, it returns the last configuration it reached.
-        - The algorithm can be instructed to respect the robot's joint limits by setting the ``qlim`` parameter to True (default False).
+        * The algorithm is initialized with the current configuration of the robot (specified in the parameters ``q``) 
+        * Iterates until the desired pose is reached (the difference between the current and desired pose is smaller than the specified ``precision``).
+        * The algorithm can be instructed to respect the robot's joint limits by setting the ``qlim`` parameter to True (default False).
+        * If the algorithm fails to converge, it is reinitialized with a random configuration and tries again (maximum number of ``tries`` can be specified - default 5). 
+        * If the algorithm fails to converge after the specified number of tries, it returns the last configuration it reached.
         
         Args:
             oMdes: SE3 matrix expressed in the world frame of the robot's end-effector desired pose    

@@ -67,6 +67,15 @@ def test_inverse_kinematics():
     assert np.allclose(oMf, oMf_ik, atol=1e-2)
 
 # write a test checking the forward kinematics and inverse kinematics
+def test_inverse_kinematics_joints():
+    panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
+    
+    q0 = np.ones(panda.model.nq)*0.1
+    oMf =  panda.forward(q0)
+    q = panda.ik(oMf, q=q0+np.random.random(len(q0))*0.2-0.1, qlim=False, verbose=True)
+    assert np.allclose(q0, q, atol=1e-1)
+
+# write a test checking the forward kinematics and inverse kinematics
 def test_inverse_kinematics_joint_saturation():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")
     

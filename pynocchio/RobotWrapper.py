@@ -385,11 +385,13 @@ class RobotWrapper:
                     print('%d: error = %s' % (i, err.T))
                 i += 1
 
-            if verbose:
-                if success:
+            if success:
+                if verbose:
                     print("Convergence achieved!")
-                    break  
-                else: # if convergence is not achieved and no initial guess is provided, try again with a random guess
+                # found 
+                break  
+            else: 
+                if verbose:  # if convergence is not achieved and no initial guess is provided, try again with a random guess
                     print(f"Warning: the iterative algorithm has not reached convergence to the desired precision, for the try number {t}/{tries}")
 
         if not success:

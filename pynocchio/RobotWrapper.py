@@ -30,7 +30,7 @@ class RobotWrapper:
     :ivar np.ndarray tau: An array containing the current joint torques of the robot.
     :ivar MeshcatVisualizer viz: The MeshcatVisualizer object for visualizing the robot.
     """
-    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray or None)=None, open_viewer:(bool or None)=False,  robot_wrapper:(pin.RobotWrapper or None)=None):
+    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray or None)=None, open_viewer:(bool or None)=False,  robot_wrapper:(pin.RobotWrapper or None)=None, robot_name:(str or None)=None, viewer:(meshcat.Visualizer or None)=None):
         """
         RobotWrapper constructor
 
@@ -42,6 +42,9 @@ class RobotWrapper:
             q:          An array containing the robot intial joint position (optional)
             open_viewer: Bool variable specifying if the meshcat viewer will be opened or not, by default False
             robot_wrapper: (pinocchio.RobotWrapper) object
+            robot_name: (str) name of the robot (optional, by default 'robot_pinocchio')
+            viewer: (meshcat.Visualizer) object (optional, pynocchio will create a new viewer if not specified)
+
 
         :raises ValueError: If neither urdf_path nor xml_path is specified.
 
@@ -49,6 +52,10 @@ class RobotWrapper:
 
         self.visual_model = None
         self.collision_model = None
+
+        if robot_name is None:
+            robot_name = 'robot_pinocchio'
+        
 
         if robot_wrapper:
             self.model = robot_wrapper.model
@@ -102,8 +109,8 @@ class RobotWrapper:
 
         if self.visual_model and self.collision_model:
             self.viz = MeshcatVisualizer(self.model, self.collision_model, self.visual_model)
-            self.viz.initViewer(open=open_viewer)
-            self.viz.loadViewerModel("pinocchio")
+            self.viz.initViewer(open=open_viewer, viewer=viewer)
+            self.viz.loadViewerModel(robot_name)
             if q is not None:
                 self.update_visualisation()
             time.sleep(0.2) # small time window for loading the model
@@ -114,7 +121,7 @@ class RobotWrapper:
         Forward kinematics calculating function
 
         Args:
-            q: currrent robot configuration (optional), if the value is not set, it uses the RobotWrapper state
+            q: current robot configuration (optional), if the value is not set, it uses the RobotWrapper state
             frame_name: name of the robot frame for which to calculate forward kinematics (optional - default tip frame)
             
 

@@ -13,5 +13,5 @@ Examples
    Quick robot loading using example-robot-data package <example_robot_data>
    Example ROS application <ROS>
    Visualize multiple robots <show_multiple_robots>
-
+   Building the reduced robot model <reduced_robot_model>
    

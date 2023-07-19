@@ -20,7 +20,8 @@ Using ``example-robot-data``  package provided by pinocchio in order to load mod
     # if in jupyter notebook, use this line 
     robot.viz.viewer.jupyter_cell()
 
-
+    # print the number of robot joints
+    print("robot has {} joints".format(panda.n))
 
     # Generate random initial joint position and velocity
     q0 = np.random.uniform(panda.q_min, panda.q_max)
@@ -28,7 +29,6 @@ Using ``example-robot-data``  package provided by pinocchio in order to load mod
     # update visualizer
     panda.update_visualisation(np.array([0.5,-1]))
 
-    print("robot has {} joints".format(panda.n))
 
 .. image:: ../images/2dof_panda.png
 

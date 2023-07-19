@@ -30,7 +30,17 @@ class RobotWrapper:
     :ivar np.ndarray tau: An array containing the current joint torques of the robot.
     :ivar MeshcatVisualizer viz: The MeshcatVisualizer object for visualizing the robot.
     """
-    def __init__(self, tip:(str or None)=None, urdf_path:(str or None)=None, xml_path:(str or None)=None, mesh_path:(str or None)=None, q:(np.ndarray or None)=None, open_viewer:(bool or None)=False,  robot_wrapper:(pin.RobotWrapper or None)=None, robot_name:(str or None)=None, viewer:(meshcat.Visualizer or None)=None):
+    def __init__(self, 
+                 tip:(str or None)=None, 
+                 urdf_path:(str or None)=None, 
+                 xml_path:(str or None)=None, 
+                 mesh_path:(str or None)=None, 
+                 q:(np.ndarray or None)=None, 
+                 open_viewer:(bool or None)=False,  
+                 robot_wrapper:(pin.RobotWrapper or None)=None, 
+                 robot_name:(str or None)=None, 
+                 viewer:(meshcat.Visualizer or None)=None,
+                 fix_joints:(list or None)=None):
         """
         RobotWrapper constructor
 
@@ -44,9 +54,10 @@ class RobotWrapper:
             robot_wrapper: (pinocchio.RobotWrapper) object
             robot_name: (str) name of the robot (optional, by default 'robot_pinocchio')
             viewer: (meshcat.Visualizer) object (optional, pynocchio will create a new viewer if not specified)
+            fix_joints: (list) list of joint ids to be fixed (optional, by default all joints are free)
 
 
-        :raises ValueError: If neither urdf_path nor xml_path is specified.
+        :raises ValueError: If neither urdf_path nor xml_path nor robot_wrapper is specified.
 
         """
 
@@ -54,8 +65,9 @@ class RobotWrapper:
         self.collision_model = None
 
         if robot_name is None:
-            robot_name = 'robot_pinocchio'
-        
+            self.robot_name = 'robot_pinocchio'
+        else:
+            self.robot_name = robot_name
 
         if robot_wrapper:
             self.model = robot_wrapper.model
@@ -77,6 +89,19 @@ class RobotWrapper:
                 self.model = pin.buildModelFromXML(xml_path)
             else: 
                 raise ValueError("ERROR: no urdf or xml specified for the robot!")
+
+        if q is None:
+            self.q = np.zeros(self.model.nq)
+        else:
+            self.q = q # joint position
+
+        if fix_joints:
+            if self.visual_model:
+                self.model, self.visual_model = pin.buildReducedModel(self.model, self.visual_model, fix_joints, self.q)
+            else:
+                self.model = pin.buildReducedModel(self.model, fix_joints, self.q)
+            
+            self.q = np.delete(self.q, np.array(fix_joints)-1)
 
         if tip is None:
             tip = self.model.frames[-1].name
@@ -101,8 +126,6 @@ class RobotWrapper:
         self.data = self.model.createData()
 
         # robot state
-        if q is not None:
-            self.q = q # joint position
         self.dq = np.zeros((self.model.nq)) # joint velocity
         self.ddq = np.zeros((self.model.nq)) # joint acceleration
         self.tau = np.zeros((self.model.nq)) # joint torque
@@ -110,12 +133,12 @@ class RobotWrapper:
         if self.visual_model and self.collision_model:
             self.viz = MeshcatVisualizer(self.model, self.collision_model, self.visual_model)
             self.viz.initViewer(open=open_viewer, viewer=viewer)
-            self.viz.loadViewerModel(robot_name)
+            self.viz.loadViewerModel(self.robot_name)
             if q is not None:
                 self.update_visualisation()
             time.sleep(0.2) # small time window for loading the model
 
-
+    
     def forward(self, q:(np.ndarray or None)=None, frame_name:(str or None)=None) -> pin.SE3:
         """
         Forward kinematics calculating function
@@ -585,6 +608,7 @@ class RobotWrapper:
         """
         if q is None:
             q = self.q
+        self.q =  q
         self.viz.display(q)
 
     def add_visual_object_from_file(self, obj_file_path:str, name_id:str, material=None) -> None:

@@ -130,6 +130,11 @@ def test_jacobian_position():
     J_pos = panda.jacobian_position(q)
     assert np.allclose(J[:3,:], J_pos, atol=1e-2)
 
+# test fixing some joints
+def test_model_fixed_joints():
+    panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf", fix_joints=[3,4])
+    assert panda.model.nq == 5
+
 # check the jacobian pseudo inverse against numpy
 def test_jacobian_pseudo_inverse():
     panda = RobotWrapper('panda_link8',  urdf_path="pynocchio/models/urdf/panda.urdf")

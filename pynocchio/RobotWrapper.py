@@ -13,6 +13,7 @@ class RobotWrapper:
     Class wrapper to use pinocchio robot model and with simplified use for various kinematic and dynamic functions.
 
     :ivar pin.RobotModel model: The pinocchio RobotModel object representing the robot.
+    :ivar pin.RobotWrapper robot: The pinocchio RobotWrapper object representing the robot.
     :ivar pin.CollisionModel collision_model: The pinocchio CollisionModel object representing the robot's collision model.
     :ivar pin.VisualModel visual_model: The pinocchio VisualModel object representing the robot's visual model.
     :ivar str tip_link: The name of the robot's end-effector frame.
@@ -37,6 +38,7 @@ class RobotWrapper:
                  mesh_path:(str or None)=None, 
                  q:(np.ndarray or None)=None, 
                  open_viewer:(bool or None)=False,  
+                 start_visualisation:(bool or None)=False,
                  robot_wrapper:(pin.RobotWrapper or None)=None, 
                  robot_name:(str or None)=None, 
                  viewer:(meshcat.Visualizer or None)=None,
@@ -63,6 +65,7 @@ class RobotWrapper:
 
         self.visual_model = None
         self.collision_model = None
+        self.robot = None
 
         if robot_name is None:
             self.robot_name = 'robot_pinocchio'
@@ -71,6 +74,7 @@ class RobotWrapper:
 
         if robot_wrapper:
             self.model = robot_wrapper.model
+            self.robot = robot_wrapper
             if robot_wrapper.collision_model and robot_wrapper.visual_model:
                 self.collision_model = robot_wrapper.collision_model
                 self.visual_model =  robot_wrapper.visual_model
@@ -81,7 +85,6 @@ class RobotWrapper:
                 self.model, self.collision_model, self.visual_model = pin.buildModelsFromXML(xml_path, mesh_path)
             else: 
                 raise ValueError("ERROR: no urdf or xml specified for the robot!")
-        
         else:
             if urdf_path:
                 self.model = pin.buildModelFromUrdf(urdf_path)
@@ -98,10 +101,13 @@ class RobotWrapper:
         if fix_joints:
             if self.visual_model:
                 self.model, self.visual_model = pin.buildReducedModel(self.model, self.visual_model, fix_joints, self.q)
+                self.robot = pin.RobotWrapper(self.model, None, self.visual_model)
             else:
                 self.model = pin.buildReducedModel(self.model, fix_joints, self.q)
+                self.robot = pin.RobotWrapper(self.model)
             
             self.q = np.delete(self.q, np.array(fix_joints)-1)
+            
 
         if tip is None:
             tip = self.model.frames[-1].name
@@ -130,7 +136,7 @@ class RobotWrapper:
         self.ddq = np.zeros((self.model.nq)) # joint acceleration
         self.tau = np.zeros((self.model.nq)) # joint torque
 
-        if self.visual_model and self.collision_model:
+        if (self.visual_model and self.collision_model) and start_visualisation:
             self.viz = MeshcatVisualizer(self.model, self.collision_model, self.visual_model)
             self.viz.initViewer(open=open_viewer, viewer=viewer)
             self.viz.loadViewerModel(self.robot_name)
@@ -352,7 +358,7 @@ class RobotWrapper:
         pin.computeCoriolisMatrix(self.model,self.data,np.array(q),np.array(dq))
         return np.array(self.data.C)
     
-    def ik(self, oMdes:pin.SE3, q:(np.ndarray or None)=None, qlim:bool=False, verbose:bool=True, iterations:int=1000, precision:float=1e-4, tries:int = 5) -> np.ndarray:
+    def ik(self, oMdes:pin.SE3, q:(np.ndarray or None)=None, qlim:bool=False, verbose:bool=True, iterations:int=1000, precision:float=1e-4, tries:int = 5,) -> np.ndarray:
         """
         Iterative inverse kinematics inspired by the pinocchio's example code 
         https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html
@@ -424,7 +430,7 @@ class RobotWrapper:
                 if verbose:  # if convergence is not achieved and no initial guess is provided, try again with a random guess
                     print(f"Warning: the iterative algorithm has not reached convergence to the desired precision, for the try number {t}/{tries}")
 
-        if not success:
+        if not success and verbose:
             print(f"Warning: IK convergence not achieved after {tries} tries. The returned configuration is the last one obtained.")
 
         return np.array(q)
